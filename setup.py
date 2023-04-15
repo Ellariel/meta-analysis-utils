@@ -17,7 +17,7 @@ setup(
     url='https://github.com/ellariel/meta-analysis-utils',
     license='MIT',
     include_package_data=True,
-    package_data={'meta-analysis-utils': ['meta-analysis-utils/*.py']},
-    packages=['meta-analysis-utils'],
+    package_data={'meta_analysis_utils': ['meta_analysis_utils/*.py']},
+    packages=['meta_analysis_utils'],
     install_requires=required,
 )
