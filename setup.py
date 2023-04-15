@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='meta-analysis-utils',
+    name='meta_analysis_utils',
     version='1.0',
     author='Ellariel',
     author_email='d.v.valko@gmail.com',
