@@ -113,6 +113,26 @@ def OR_from_logOR(x):
 def r_from_cohen_d(d): # Pearson's r from Cohen's d
     # https://www.escal.site/
     return d / math.sqrt(d*d + 4)
+
+def r_from_f(f, df): # Сorrelation r from F-statistic
+    # https://juls-dotcom.github.io/meta_analysis.html
+    return f / math.sqrt(f + df)
+    
+def r_from_t(t, df): # Сorrelation r from t-statistic
+    # https://juls-dotcom.github.io/meta_analysis.html
+    return t*t / math.sqrt(t*t + df)
+
+def r_from_z(z, n): # Сorrelation r from Fisher's z 
+    # https://juls-dotcom.github.io/meta_analysis.html
+    return z / math.sqrt(n)
+
+def unbiased_z(z): # unbiased Z
+    # https://juls-dotcom.github.io/meta_analysis.html
+    # sample sizes < 20 or 10 in each group, see Nakagawa & Cuthill, 2007
+    # https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1469-185X.2007.00027.x
+    # (zru) value using the equation proposed by Hedges & Olkin, 1985
+    # https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis
+    return z
    
 ### OLS   
 def ols_APA(ols): # R² = .34, F(1, 416) = 6.71, p = .009
