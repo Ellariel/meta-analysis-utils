@@ -105,7 +105,13 @@ def logOR_from_cohen_d(d): # log odds ratio from Cohen's d
     # https://www.escal.site/
     return np.pi*d / math.sqrt(3)
 
+def OR_from_logOR(x):
+    # odds = EXP (0.873) = 2.394;
+    # https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/
+    return np.exp(x)
+
 def r_from_cohen_d(d): # Pearson's r from Cohen's d
+    # https://www.escal.site/
     return d / math.sqrt(d*d + 4)
    
 ### OLS   
