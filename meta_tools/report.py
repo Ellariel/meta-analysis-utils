@@ -110,7 +110,7 @@ def OR_from_logOR(x):
     # https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/
     return np.exp(x)
 
-def r_from_cohen_d(d): # Pearson's r from Cohen's d
+def r_from_cohen_d(d): # Сorrelation r from Cohen's d
     # https://www.escal.site/
     return d / math.sqrt(d*d + 4)
 
