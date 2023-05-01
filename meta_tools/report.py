@@ -15,6 +15,10 @@ from factor_analyzer import (ConfirmatoryFactorAnalyzer, ModelSpecificationParse
 from scipy.stats import wilcoxon, mannwhitneyu
 from scipy.stats import pearsonr, spearmanr
 
+import semopy as sem
+import warnings
+warnings.filterwarnings("ignore")
+
 ######################################################################################
 # https://cran.r-project.org/web/packages/effectsize/vignettes/interpret.html
 ### FORMAT
@@ -212,3 +216,24 @@ def plot_ecdf(data, xlabel=None, ylabel=None):
     else:
         plt.ylabel(ylabel)
     #plt.show()
+
+
+### SEM
+
+# https://arxiv.org/pdf/2106.01140.pdf
+# formula = f"""
+# ПП =~ {' + '.join(p)}
+# НЭ =~ {' + '.join(e)}
+# ПП ~ НЭ + {' + '.join(x)} + Группа
+# """
+
+def run_sem(data, formula, obj='MLW', solver='SLSQP', bootstrap=False, plot_covs=True, standardized=True, save_to_file='sem.pdf', seed=48):
+    random.seed(seed)
+    np.random.seed(seed)
+    model = sem.Model(formula)
+    model.fit(data, obj=obj, solver=solver) #MLW ULS GLS FIML DWLS WLS
+    if bootstrap:
+        sem.bias_correction(model, n=bootstrap, resample_mean=True)
+    if save_to_file:
+        sem.semplot(model, save_to_file, plot_covs=plot_covs, std_ests=standardized, show=True)
+    return sem.calc_stats(model).T, model.inspect()
