@@ -143,14 +143,14 @@ def ols_APA(ols): # R² = .34, F(1, 416) = 6.71, p = .009
     r_sq, df_model, df_resid, fvalue = f'{ols.rsquared:.2f}'[1:], f'{ols.df_model:.0f}', f'{ols.df_resid:.0f}', f'{ols.fvalue:.2f}'
     return f"R² = {r_sq}, F({df_model}, {df_resid}) = {fvalue}, {format_p(ols.f_pvalue)}"
 
-def calc_ols(data, x, y, standardized=True):
+def calc_ols(data, x, y, standardized=True, drop_rlm=False):
     cols = [y] + x
     d = data[cols]
     if standardized:
         d = preprocessing.scale(d)
         d = pd.DataFrame(d)
         d.columns = cols
-    f = f'{y} ~ 1 + ' + '+'.join(x)
+    f = f'{y} ~ 1 + ' + ' + '.join(x)
     print(f)
     _lm = smf.ols(f, d).fit(cov_type='HC1')
     rlm = smf.rlm(f, d, M=sm.robust.norms.HuberT()).fit() #TrimmedMean(0.5)
@@ -169,7 +169,8 @@ def calc_ols(data, x, y, standardized=True):
     f = pd.Series(x).rename('index')
     f = pd.concat([f, f.rename('i')], axis=1).set_index('i')
     robust_ols = f.join(robust_ols, how='left')
-    result = robust_ols.join(base_ols, how='left')
+    if drop_rlm:
+        result = robust_ols.join(base_ols, how='left')
     apa = ols_APA(_lm)
     print(apa)
     return result.reset_index(drop=True), apa, _lm, rlm
