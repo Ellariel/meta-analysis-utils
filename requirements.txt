@@ -1,9 +1,9 @@
 numpy
 pandas
+sklearn
 scipy
 seaborn
 matplotlib
 statsmodels
-sklearn
 factor-analyzer
 semopy
