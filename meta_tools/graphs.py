@@ -97,7 +97,7 @@ def radar_factory(num_vars, frame='circle'):
     register_projection(RadarAxes)
     return theta
 
-def ols_tree_graph(r, title, robust=True):
+def ols_tree_graph(r, title, robust=False):
     def addlabels(x, y, sig):
       for i, j in enumerate(x):
           if j < 0:
@@ -114,8 +114,8 @@ def ols_tree_graph(r, title, robust=True):
     y1 = range(len(x1))
     y2 = range(len(x1), (len(x1) + len(x2))) 
     y = range(len(x1) + len(x2))
-    yl1 = d[d['coef'+rb] < 0].feature.to_list()
-    yl2 = d[d['coef'+rb] > 0].feature.to_list()
+    yl1 = d[d['coef'+rb] < 0]['index'].to_list()
+    yl2 = d[d['coef'+rb] > 0]['index'].to_list()
     fig, axes = plt.subplots(ncols=2, sharey=True, figsize=(5, 3.5))
     bar1 = axes[0].barh(y1, x1, align='center', color='red')
     bar2 = axes[1].barh(y2, x2, align='center', color='blue')
