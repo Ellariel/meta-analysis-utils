@@ -103,16 +103,7 @@ def cohen_d_from_f(f, df_num, df_denom): # Cohen’s d from F-statistic
 
 def z_from_r(r): # Fisher's z from correlation r
     # https://www.escal.site/
-    return (np.log(1 + r) - np.log(1 - r)) / 2
-
-def logOR_from_cohen_d(d): # log odds ratio from Cohen's d
-    # https://www.escal.site/
-    return np.pi*d / math.sqrt(3)
-
-def OR_from_logOR(x):
-    # odds = EXP (0.873) = 2.394;
-    # https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/
-    return np.exp(x)
+    return (np.log10(1 + r) - np.log10(1 - r)) / 2
 
 def r_from_cohen_d(d): # Сorrelation r from Cohen's d
     # https://www.escal.site/
@@ -137,6 +128,23 @@ def unbiased_z(z): # unbiased Z
     # (zru) value using the equation proposed by Hedges & Olkin, 1985
     # https://www.sciencedirect.com/book/9780080570655/statistical-methods-for-meta-analysis
     return z
+
+def logit_from_probit(x):
+    # https://statmodeling.stat.columbia.edu/2006/06/06/take_logit_coef/
+    # https://www.statalist.org/forums/forum/general-stata-discussion/general/1704819-calculating-odds-ration-in-probit-model
+    return -1.7*x
+
+def OR_from_logit(x): # odds ratio from log odds ratio
+    # odds = EXP(0.873) = 2.394;
+    # https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/
+    return np.exp(x)
+
+def OR_from_cohen_d(d): # odds ratio from Cohen's d
+    # https://www.escal.site/
+    return np.pi*d / math.sqrt(3)
+
+def logit_from_OR(x):
+    return np.log(x)
    
 ### OLS   
 def ols_APA(ols): # R² = .34, F(1, 416) = 6.71, p = .009
