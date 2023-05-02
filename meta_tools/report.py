@@ -243,6 +243,5 @@ def run_sem(data, formula, obj='MLW', solver='SLSQP', bootstrap=False, plot_covs
     model.fit(data, obj=obj, solver=solver) #MLW ULS GLS FIML DWLS WLS
     if bootstrap:
         sem.bias_correction(model, n=bootstrap, resample_mean=True)
-    if save_to_file:
-        sem.semplot(model, save_to_file, plot_covs=plot_covs, std_ests=standardized, show=True)
-    return sem.calc_stats(model).T, model.inspect()
+    g = sem.semplot(model, save_to_file, plot_covs=plot_covs, std_ests=standardized, show=True)
+    return g, sem.calc_stats(model).T, model.inspect()
