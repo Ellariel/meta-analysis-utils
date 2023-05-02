@@ -143,5 +143,5 @@ def ols_tree_graph(r, title, robust=False):
     fig.text(0.5, 0, 'β', ha='center')
     #fig.tight_layout()
     fig.subplots_adjust(wspace=0, top=0.93)
-    plt.show()
+    #plt.show()
     return fig
