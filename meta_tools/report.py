@@ -9,13 +9,14 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from sklearn import decomposition, preprocessing
+
 from factor_analyzer import FactorAnalyzer
 from factor_analyzer import (ConfirmatoryFactorAnalyzer, ModelSpecificationParser)
-
-from scipy.stats import wilcoxon, mannwhitneyu
-from scipy.stats import pearsonr, spearmanr
-
 import semopy as sem
+
+#from scipy.stats import wilcoxon, mannwhitneyu
+#from scipy.stats import pearsonr, spearmanr
+
 import warnings
 warnings.filterwarnings("ignore")
 
