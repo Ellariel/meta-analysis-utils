@@ -101,13 +101,18 @@ def cohen_d_from_f(f, df_num, df_denom): # Cohen’s d from F-statistic
     d = 2 * math.sqrt(eta_sq) / math.sqrt(1 - eta_sq)
     return d
 
+def cohen_d_from_r(r): # Cohen's d from correlation r  
+    # https://easystats.github.io/effectsize/reference/d_to_r.html
+    return math.sqrt(4) * r / math.sqrt(1 - r*r) # equal groups
+
 def z_from_r(r): # Fisher's z from correlation r
     # https://www.escal.site/
     return (np.log10(1 + r) - np.log10(1 - r)) / 2
 
 def r_from_cohen_d(d): # Сorrelation r from Cohen's d
     # https://www.escal.site/
-    return d / math.sqrt(d*d + 4)
+    # https://easystats.github.io/effectsize/reference/d_to_r.html
+    return d / math.sqrt(d*d + 4) # equal groups
 
 def r_from_f(f, df): # Сorrelation r from F-statistic
     # https://juls-dotcom.github.io/meta_analysis.html
@@ -117,9 +122,12 @@ def r_from_t(t, df): # Сorrelation r from t-statistic
     # https://juls-dotcom.github.io/meta_analysis.html
     return t*t / math.sqrt(t*t + df)
 
-def r_from_z(z, n): # Сorrelation r from Fisher's z 
+def r_from_z(z, n): # Сorrelation r (Cohen’s r) from Fisher's z 
     # https://juls-dotcom.github.io/meta_analysis.html
     return z / math.sqrt(n)
+
+def r_from_p(p, n, method='two-tailed'): # Сorrelation r (Cohen’s r) from p-value
+    return cohen_r_from_p(p, n, method=method)
 
 def unbiased_z(z): # unbiased Z
     # https://juls-dotcom.github.io/meta_analysis.html
@@ -139,9 +147,15 @@ def OR_from_logit(x): # odds ratio from log odds ratio
     # https://stats.oarc.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-interpret-odds-ratios-in-logistic-regression/
     return np.exp(x)
 
-def OR_from_cohen_d(d): # odds ratio from Cohen's d
+def logit_from_cohen_d(d): # log odds ratio from Cohen's d
     # https://www.escal.site/
+    # https://easystats.github.io/effectsize/reference/d_to_r.html
     return np.pi*d / math.sqrt(3)
+
+def cohen_d_from_logit(x): # Cohen's d from log odds ratio
+    # https://stats.stackexchange.com/questions/68290/converting-odds-ratios-to-cohens-d-for-meta-analysis
+    # https://www.um.es/metaanalysis/pdf/7078.pdf
+    return x * math.sqrt(3) / np.pi
 
 def logit_from_OR(x):
     return np.log(x)
