@@ -43,7 +43,7 @@ def format_p(p):
     return 'p = ' + f'{p:.3f}'[1:]
 
 ### STATISTICS
-def bootstrap_CI(data, func=np.mean, p=0.95, n=1000, seed=13):
+def CI_for_mean(data, func=np.mean, p=0.95, n=1000, seed=13):
     # Bootstrapped 95% confidence intervals for the mean/median value from 1000 resamples are reported.
     # https://towardsdatascience.com/how-to-calculate-confidence-intervals-in-python-a8625a48e62b
     random.seed(seed)
@@ -52,7 +52,7 @@ def bootstrap_CI(data, func=np.mean, p=0.95, n=1000, seed=13):
     lp, rp, m = (1-p)/2, 1-(1-p)/2, func(data)
     return np.hstack([m, np.percentile(simulations, [lp*100, rp*100])])
 
-def spearman_CI(r, n, p=0.95):
+def CI_for_r(r, n, p=0.95):
     # https://en.wikipedia.org/wiki/Fisher_transformation
     # https://stats.stackexchange.com/questions/18887/how-to-calculate-a-confidence-interval-for-spearmans-rank-correlation
     se = 1 / math.sqrt(n-3)
@@ -107,7 +107,8 @@ def cohen_d_from_r(r): # Cohen's d from correlation r
 
 def z_from_r(r): # Fisher's z from correlation r
     # https://www.escal.site/
-    return (np.log10(1 + r) - np.log10(1 - r)) / 2
+    # https://en.wikipedia.org/wiki/Fisher_transformation
+    return math.atanh(r) # np.log((1 + r)/(1 - r)) / 2
 
 def r_from_cohen_d(d): # Сorrelation r from Cohen's d
     # https://www.escal.site/
