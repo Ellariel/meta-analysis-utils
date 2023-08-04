@@ -192,9 +192,9 @@ def calc_ols(data, x, y, standardized=True, drop_rlm=False):
     robust_ols.columns = [i+'_robust' for i in robust_ols.columns]
     f = pd.Series(x).rename('index')
     f = pd.concat([f, f.rename('i')], axis=1).set_index('i')
-    robust_ols = f.join(robust_ols, how='left')
-    if drop_rlm:
-        result = robust_ols.join(base_ols, how='left')
+    result = f.join(base_ols, how='left')
+    if not drop_rlm:
+        result = result.join(robust_ols, how='left')
     apa = ols_APA(_lm)
     print(apa)
     return result.reset_index(drop=True), apa, _lm, rlm
