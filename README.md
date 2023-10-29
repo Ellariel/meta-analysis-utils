@@ -3,10 +3,10 @@ Some tools for meta-analysis and reporting of research results according to APA 
 
 ### Install
 ```shell
-pip install git+https://github.com/ellariel/meta_tools.git
+pip install git+https://github.com/ellariel/metatools.git
 ```
 
 ### Import
 ```shell
-from meta_tools import report
+from metatools import report
 ```
