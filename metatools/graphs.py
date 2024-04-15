@@ -97,7 +97,7 @@ def radar_factory(num_vars, frame='circle'):
     register_projection(RadarAxes)
     return theta
 
-def ols_tree_graph(r, title, use_rlm=False):
+def ols_tree_graph(r, title, use_rlm=False, forecolor='mediumorchid', backcolor='thistle'):
     def addlabels(x, y, sig):
       for i, j in enumerate(x):
           if j < 0:
@@ -127,14 +127,14 @@ def ols_tree_graph(r, title, use_rlm=False):
         ax.grid(True)
     for i, b in enumerate(bar1):
         if len(sig1[i]):
-          b.set_color('mediumorchid')
+          b.set_color(forecolor)
         else:
-          b.set_color('thistle')
+          b.set_color(backcolor)
     for i, b in enumerate(bar2):
         if len(sig2[i]):
-          b.set_color('mediumorchid')
+          b.set_color(forecolor)
         else:
-          b.set_color('thistle')
+          b.set_color(backcolor)
     addlabels(x1, y1, sig1)
     addlabels(x2, y2, sig2)
     axes[0].tick_params(axis='y', which='both', labelleft=True, labelright=False)
