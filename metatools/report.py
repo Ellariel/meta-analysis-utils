@@ -166,8 +166,20 @@ def logit_from_OR(x):
 def ols_APA(ols): # R² = .34, F(1, 416) = 6.71, p = .009
     r_sq, df_model, df_resid, fvalue = f'{ols.rsquared:.2f}'[1:], f'{ols.df_model:.0f}', f'{ols.df_resid:.0f}', f'{ols.fvalue:.2f}'
     return f"R² = {r_sq}, F({df_model}, {df_resid}) = {fvalue}, {format_p(ols.f_pvalue)}"
+    
+def rlm_APA(rlm): # R² = .34, F(1, 416) = 6.71, p = .009
+    # https://stats.stackexchange.com/questions/55236/prove-f-test-is-equal-to-t-test-squared
+    # https://stats.stackexchange.com/questions/83826/is-a-weighted-r2-in-robust-linear-model-meaningful-for-goodness-of-fit-analys?answertab=modifieddesc#tab-top
+    SSe = np.sum((rlm.weights * rlm.resid) ** 2)
+    observed = rlm.resid + rlm.fittedvalues
+    SSt = np.sum((rlm.weights * (observed - np.mean(rlm.weights * observed)) ) ** 2)
+    r_sq = 1-SSe/SSt
+    f_stat = (SSt/rlm.df_model) / (SSe/rlm.df_resid)
+    f_pvalue = scipy.stats.f.sf(f_stat, rlm.df_model, rlm.df_resid)
+    r_sq, df_model, df_resid, fvalue = f'{r_sq:.2f}'[1:], f'{rlm.df_model:.0f}', f'{rlm.df_resid:.0f}', f'{f_stat:.2f}'
+    return f"R² = {r_sq}, F({df_model}, {df_resid}) = {fvalue}, {format_p(f_pvalue)}"
 
-def calc_ols(data, x, y, standardized=True, drop_rlm=False):
+def calc_ols(data, x, y, standardized=True, drop_rlm=False, ols_cov_type='HC1', rlm_cov_type='Huber'):
     cols = [y] + x
     d = data[cols]
     if standardized:
@@ -176,8 +188,10 @@ def calc_ols(data, x, y, standardized=True, drop_rlm=False):
         d.columns = cols
     f = f'{y} ~ 1 + ' + ' + '.join(x)
     print(f)
-    _lm = smf.ols(f, d).fit(cov_type='HC1')
-    rlm = smf.rlm(f, d, M=sm.robust.norms.HuberT()).fit() #TrimmedMean(0.5)
+    _lm = smf.ols(f, d).fit(cov_type=ols_cov_type)
+    if rlm_cov_type=='Huber':
+        rlm_cov_type = sm.robust.norms.HuberT()
+    rlm = smf.rlm(f, d, M=rlm_cov_type).fit() #TrimmedMean(0.5)
 
     base_ols = pd.read_html(_lm.summary().tables[1].as_html(), header=0, index_col=0)[0].rename(columns={'P>|z|' : 'p-value',
                                                                                   'std err' : 'std_err',
@@ -193,11 +207,14 @@ def calc_ols(data, x, y, standardized=True, drop_rlm=False):
     f = pd.Series(x).rename('index')
     f = pd.concat([f, f.rename('i')], axis=1).set_index('i')
     result = f.join(base_ols, how='left')
+    ols_apa = ols_APA(_lm)
+    rlm_apa = rlm_APA(rlm)
+    print('OLS:' + ols_apa)    
     if not drop_rlm:
+        print('ROLS:' + rlm_apa)
         result = result.join(robust_ols, how='left')
-    apa = ols_APA(_lm)
-    print(apa)
-    return result.reset_index(drop=True), apa, _lm, rlm
+
+    return result.reset_index(drop=True), ols_apa, _lm, rlm_apa, rlm
 
 ### FACTOR ANALYSIS
 def factor_analysis(data, n_factors=1, rotation=None, sort=False, rename_dict=None):
