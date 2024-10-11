@@ -73,7 +73,7 @@ def r_sq(results):
 
     weights = getattr(results, 'weights', 1)
     resid = getattr(results, 'resid', 
-                getattr(results, 'resid_response', None))
+                getattr(results, 'resid_working', None))
     fitted = results.fittedvalues
     observed = resid + fitted
     df_model = int(results.df_model)
