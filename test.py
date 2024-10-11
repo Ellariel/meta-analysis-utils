@@ -9,6 +9,7 @@ def s(x):
     return f'{x:.2f}'
 
 test_data = sm.datasets.get_rdataset("mtcars", "datasets", cache=True).data
+assert len(test_data) == 32
 
 y = 'mpg'
 x = ['wt', 'vs']

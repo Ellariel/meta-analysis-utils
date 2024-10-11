@@ -1,5 +1,6 @@
 numpy
 pandas
+lxml
 scipy==1.13.1
 scikit-learn==1.5.2
 seaborn==0.13.2
