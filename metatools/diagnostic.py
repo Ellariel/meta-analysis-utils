@@ -1,21 +1,18 @@
-# base code
 import numpy as np
+import matplotlib.pyplot as plt
+from typing import Type
 import seaborn as sns
 import statsmodels
 from statsmodels.tools.tools import maybe_unwrap_results
 from statsmodels.graphics.gofplots import ProbPlot
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-import matplotlib.pyplot as plt
-from typing import Type
 
-style_talk = 'seaborn-talk'    #refer to plt.style.available
-
-class LinearRegDiagnostic():
+class lm_diag():
     """
     Diagnostic plots to identify potential problems in a linear regression fit.
     Mainly,
         a. non-linearity of data
-        b. Correlation of error terms
+        b. correlation of error terms
         c. non-constant variance
         d. outliers
         e. high-leverage points
@@ -88,7 +85,7 @@ class LinearRegDiagnostic():
         """
 
         if isinstance(results, statsmodels.regression.linear_model.RegressionResultsWrapper) is False:
-            raise TypeError("result must be instance of statsmodels.regression.linear_model.RegressionResultsWrapper object")
+            raise TypeError("Result must be instance of statsmodels.regression.linear_model.RegressionResultsWrapper object")
 
         self.results = maybe_unwrap_results(results)
 
@@ -96,17 +93,22 @@ class LinearRegDiagnostic():
         self.y_predict = self.results.fittedvalues
         self.xvar = self.results.model.exog
         self.xvar_names = self.results.model.exog_names
-
-        self.residual = np.array(self.results.resid)
-        influence = self.results.get_influence()
-        self.residual_norm = influence.resid_studentized_internal
-        self.leverage = influence.hat_matrix_diag
-        self.cooks_distance = influence.cooks_distance[0]
+        self.residual = getattr(self.results, 'resid', 
+                            getattr(self.results, 'resid_working', None))
+        if getattr(self.results, 'get_influence', None):
+            influence = self.results.get_influence()
+            self.residual_norm = getattr(influence, 'resid_studentized_internal', 
+                                    getattr(influence, 'resid_studentized', None))
+            self.leverage = influence.hat_matrix_diag
+            self.cooks_distance = influence.cooks_distance[0]
+        else:
+            self.residual_norm = getattr(self.results, 'sresid', None)
+            self.leverage = None
+            self.cooks_distance = None
         self.nparams = len(self.results.params)
         self.nresids = len(self.residual_norm)
 
     def __call__(self, plot_context='seaborn-v0_8-paper', **kwargs):
-        # print(plt.style.available)
         with plt.style.context(plot_context):
             fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(10,10))
             self.residual_plot(ax=ax[0,0])
@@ -224,6 +226,10 @@ class LinearRegDiagnostic():
         aka are influential.
         Good to have none outside the curves.
         """
+        if self.leverage is None:
+            print(f'No leverage for this model: {self.results.model}')
+            return
+
         if ax is None:
             fig, ax = plt.subplots()
 
@@ -257,7 +263,7 @@ class LinearRegDiagnostic():
         elif cooks_threshold == 'dof':
             factors = [4/ (self.nresids - self.nparams)]
         else:
-            raise ValueError("threshold_method must be one of the following: 'convention', 'dof', or 'baseR' (default)")
+            raise ValueError("Threshold_method must be one of the following: 'convention', 'dof', or 'baseR' (default)")
         for i, factor in enumerate(factors):
             label = "Cook's distance" if i == 0 else None
             xtemp, ytemp = self.__cooks_dist_line(factor)
@@ -278,7 +284,7 @@ class LinearRegDiagnostic():
         plt.legend(loc='best')
         return ax
 
-    def vif_table(self):
+    def vif_table(self, sort=False):
         """
         VIF table
 
@@ -287,12 +293,11 @@ class LinearRegDiagnostic():
         other input variables.
         """
         vif_df = pd.DataFrame()
-        vif_df["Features"] = self.xvar_names
-        vif_df["VIF Factor"] = [variance_inflation_factor(self.xvar, i) for i in range(self.xvar.shape[1])]
+        vif_df["variables"] = self.xvar_names
+        vif_df["VIF"] = [variance_inflation_factor(self.xvar, i) for i in range(self.xvar.shape[1])]
+        vif_df = vif_df if not sort else vif_df.sort_values("VIF")
 
-        return (vif_df
-                .sort_values("VIF Factor")
-                .round(2))
+        return vif_df.round(2)
 
 
     def __cooks_dist_line(self, factor):
