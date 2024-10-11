@@ -18,7 +18,7 @@ def fit_model(model, Y, X, **kwargs): # model.fit() generator function
         elif model == 'glm':
             yield next(fit_model(sm.GLM, Y, X, **kwargs))
         else:
-            pass
+            raise NotImplementedError(f"{model} is not implemented, try 'ols', 'rlm' or 'glm'.")
     else:
         verbose = kwargs.get('verbose', False)
         if model == sm.OLS:
@@ -102,10 +102,9 @@ def lm(data, y, x, model='ols', **kwargs):
     lm(test_data, Y, X, model=['ols', 'rlm'], 
                     verbose=True,
                     constant=True,
-                    standardized=False,
+                    standardized=False, # keeps np.number columns only
                     r_sq = True, 
-                    rlm_fit_constant=True,
-                    ols_fit_standardized=True,
+                    pred_r_sq = True,
                     ols_fit_cov_type='HC1', 
                     rlm_model_M=sm.robust.norms.RamsayE())
     '''

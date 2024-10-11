@@ -1,5 +1,6 @@
 # !pip install factor-analyzer
 # !pip install semopy
+# !pip install lxml
 
 import math, random, scipy
 import numpy as np
@@ -9,6 +10,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from sklearn import decomposition, preprocessing
+from itertools import zip_longest
 
 from factor_analyzer import FactorAnalyzer
 from factor_analyzer import (ConfirmatoryFactorAnalyzer, ModelSpecificationParser)
@@ -23,7 +25,9 @@ warnings.filterwarnings("ignore")
 ######################################################################################
 # https://cran.r-project.org/web/packages/effectsize/vignettes/interpret.html
 ### FORMAT
-def get_stars(p, p001='***', p01='**', p05='*', p10=''):
+
+
+def get_stars(p, p001='***', p01='**', p05='*', p10='⁺'):
     if p < 0.001:
         return p001
     if p < 0.010:
@@ -34,15 +38,64 @@ def get_stars(p, p001='***', p01='**', p05='*', p10=''):
         return p10
     return ''
 
-def format_p(p):
-    if p >= 0.999:
-      raise 'bad p-value'
-    if p < 0.0001:
-        return 'p < .0001'
-    if p < 0.001:
-        return 'p < .001'
-    return 'p = ' + f'{p:.3f}'[1:]
 
+def format_p(p, add_p=True, keep_space=True):
+    if p >= 0.999:
+        p = 'p = 1.000'
+    elif p < 0.001:
+        p = 'p < .001'
+    elif p < 0.0001:
+        p = 'p < .0001'
+    elif not np.isfinite(p) or p < 0.0:
+        p = 'p = inf'
+    else:
+        p = 'p = ' + f"{p:.3f}"[1:]
+    p = p if add_p else p.replace('p ', '').replace('=', '')
+    p = p if keep_space else p.replace(' ', '')
+    return p
+
+
+def format_r(r):
+    if r >= 0.999:
+        r = '1.00'
+    elif r < 0.005:
+        r = '0.00'
+    elif not np.isfinite(r):
+        r = 'inf'
+    else:
+        r = f"{'-' if r < 0.0 else ''}{abs(r):.2f}"[1:]
+    return r
+
+
+def lm_APA(results, info={}, decimal=None): 
+    # R² = .34, R²adj = .34, R²pred = .34, F(1, 416) = 6.71, p = .009
+    res = []
+    for r, i in zip_longest(results, info, fillvalue={}):
+        if 'pred_r_sq' not in i:
+            if 'r_sq' in i:
+                i = f"R² = {format_r(i['r_sq'])}, R²adj = {format_r(i['r_sq_adj'])}, F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
+            else:
+                i = ''
+        else:
+            i = f"R² = {format_r(i['r_sq'])}, R²adj = {format_r(i['r_sq_adj'])}, R²pred = {format_r(i['pred_r_sq'])}, F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
+        params = pd.read_html(r.summary().tables[1].as_html(), header=0, index_col=0)[0]\
+                                .rename(columns={'P>|z|' : 'p-value',
+                                                 'std err' : 'std_err',
+                                                 '[0.025' : 'CIL',
+                                                 '0.975]' : 'CIR'})
+        if decimal:
+            for c in ['coef', 'std_err', 'CIL', 'CIR']:
+                params[c] = params[c].apply(lambda x: round(x, decimal))
+        params['sig'] = [get_stars(c) for c in params['p-value']]
+        params['p-value'] = [format_p(c, add_p=False, keep_space=False) for c in params['p-value']]
+        if len(i):
+            params['model'] = ''
+            params['model'].iloc[0] = i
+        res.append(params)
+    return res
+
+
+#for r, i in zip_longest(results, info, fillvalue={}):
 ### STATISTICS
 def CI_for_mean(data, func=np.mean, p=0.95, n=1000, seed=13):
     # Bootstrapped 95% confidence intervals for the mean/median value from 1000 resamples are reported.
