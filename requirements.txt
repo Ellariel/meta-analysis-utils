@@ -1,8 +1,9 @@
 numpy
 pandas
-scipy
-seaborn
-matplotlib
-statsmodels
-factor-analyzer
-semopy
+scipy==1.13.1
+scikit-learn==1.5.2
+seaborn==0.13.2
+matplotlib>=3.9.2
+statsmodels==0.14.4
+factor-analyzer==0.5.1
+semopy==2.3.11

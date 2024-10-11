@@ -11,7 +11,7 @@ setup(
     version='1.0',
     author='Danila Valko',
     author_email='d.v.valko@gmail.com',
-    description="Some tools for meta-analysis and reporting of research results according to APA standards.",
+    description="Some tools for statistics and proper reporting.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/ellariel/metatools',
