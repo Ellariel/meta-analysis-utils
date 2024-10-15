@@ -46,8 +46,6 @@ def format_p(p, add_p=True, keep_space=True):
         p = 'p = 1.000'
     elif p < 0.001:
         p = 'p < .001'
-    elif p < 0.0001:
-        p = 'p < .0001'
     else:
         p = 'p = ' + f"{p:.3f}"[1:]
     p = p if add_p else p.replace('p ', '').replace('=', '')
