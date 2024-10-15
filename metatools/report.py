@@ -40,14 +40,14 @@ def get_stars(p, p001='***', p01='**', p05='*', p10='⁺'):
 
 
 def format_p(p, add_p=True, keep_space=True):
-    if p >= 0.999:
+    if not np.isfinite(p) or p < 0.0:
+        p = 'p = inf'
+    elif p >= 0.999:
         p = 'p = 1.000'
     elif p < 0.001:
         p = 'p < .001'
     elif p < 0.0001:
         p = 'p < .0001'
-    elif not np.isfinite(p) or p < 0.0:
-        p = 'p = inf'
     else:
         p = 'p = ' + f"{p:.3f}"[1:]
     p = p if add_p else p.replace('p ', '').replace('=', '')
