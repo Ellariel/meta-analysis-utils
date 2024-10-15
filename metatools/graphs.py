@@ -7,6 +7,33 @@ from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
 import numpy as np
 import pandas as pd
+import os
+
+def merge_2axes(fig1, fig2, file_name1="f1_.png", file_name2="f2_.png", horizontal=True, dpi=600):
+  fig1.savefig(file_name1, dpi=dpi, bbox_inches='tight', pad_inches=0.5)
+  fig2.savefig(file_name2, dpi=dpi, bbox_inches='tight', pad_inches=0.5)
+  h1, h2 = [int(np.ceil(fig.get_figheight())) for fig in (fig1, fig2)]
+  w1, w2 = [int(np.ceil(fig.get_figwidth())) for fig in (fig1, fig2)]
+  if not horizontal:
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(max(w1, w2), h1 + h2))
+  else:
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(w1 + w2, max(h1, h2)))
+  gs = axes[0].get_gridspec()
+  for ax in axes.flat:
+        ax.remove()
+  ax1 = fig.add_subplot(gs[:1])
+  ax2 = fig.add_subplot(gs[1:])
+  ax1.imshow(plt.imread(file_name1))
+  ax2.imshow(plt.imread(file_name2))
+  for ax in (ax1, ax2):
+        for side in ('top', 'left', 'bottom', 'right'):
+            ax.spines[side].set_visible(False)
+        ax.tick_params(left=False, right=False, labelleft=False,
+                      labelbottom=False, bottom=False)
+  fig.tight_layout()
+  os.remove(file_name1)
+  os.remove(file_name2)
+  return fig
 
 def radar_factory(num_vars, frame='circle'):
     """Create a radar chart with `num_vars` axes.
