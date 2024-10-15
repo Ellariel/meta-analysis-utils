@@ -56,14 +56,14 @@ def format_p(p, add_p=True, keep_space=True):
 
 
 def format_r(r):
-    if r >= 0.999:
+    if abs(r) >= 0.999:
         r = '1.00'
-    elif r < 0.005:
+    elif abs(r) < 0.005:
         r = '0.00'
     elif not np.isfinite(r):
         r = 'inf'
     else:
-        r = f"{'-' if r < 0.0 else ''}{abs(r):.2f}"[1:]
+        r = f"{'-' if r < 0.0 else ''}"+f"{abs(r):.2f}"[1:]
     return r
 
 

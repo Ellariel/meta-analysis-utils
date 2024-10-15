@@ -52,14 +52,20 @@ def pred_r_sq(model, Y, X, **kwargs):
     https://stats.stackexchange.com/questions/592653/how-to-get-predicted-r-square-from-statmodels
     '''
     res = {}
+    errors = []
     kwargs['verbose'] = False
     for train_index, test_index in LeaveOneOut().split(X):
-            x_train, x_test = X.iloc[train_index], X.iloc[test_index]
-            y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
-            for idx, r in enumerate(fit_model(model, y_train, x_train, **kwargs)):
-                res.setdefault(idx, [])
-                res[idx].append(*(y_test - r.predict(x_test)))
-    return [1 - np.sum(np.square(i)) / np.var(Y) / Y.size for _, i in res.items()]
+                x_train, x_test = X.iloc[train_index], X.iloc[test_index]
+                y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+                try:
+                    for idx, r in enumerate(fit_model(model, y_train, x_train, **kwargs)):
+                        res.setdefault(idx, [])
+                        res[idx].append(*(y_test - r.predict(x_test)))
+                except Exception as e:
+                        errors.append(str(e))
+    if len(errors):
+        print(f"Some attempts to calculate R²pred have been unsuccessful ({len(errors)}): {set(errors)}")
+    return np.clip([1 - np.sum(np.square(i)) / np.var(Y) / Y.size for _, i in res.items()], -1.0, 1.0)
 
 
 def r_sq(results):
@@ -74,18 +80,23 @@ def r_sq(results):
     weights = getattr(results, 'weights', 1)
     resid = getattr(results, 'resid', 
                 getattr(results, 'resid_working', None))
+    nobs = int(results.nobs)
+    n_pred = len(set(results.params.index) - set(['const'])) # number of predictors, without intercept
+    df_model = max(int(results.df_model), n_pred) # technical correction
+    df_resid = max(int(results.df_resid), nobs - df_model) # technical correction
     fitted = results.fittedvalues
-    observed = resid + fitted
-    df_model = int(results.df_model)
-    df_resid = int(results.df_resid)
-    nobs = getattr(results, 'nobs', df_model + df_resid)
+    observed = resid + fitted    
     SSe = np.sum((weights * resid) ** 2)
     SSt = np.sum((weights * (observed - np.mean(weights * observed)) ) ** 2)
     r_sq = getattr(results, 'rsquared', 
                 getattr(results, 'pseudo_rsquared', 1 - SSe/SSt))
     r_sq = r_sq() if callable(r_sq) else r_sq
-    r_sq_adj = getattr(results, 'rsquared_adj', 1 - (1 - r_sq) * (nobs - 1) / (nobs - df_resid - 1))
-    f_stat = getattr(results, 'fvalue', (r_sq / (df_resid - 1)) / ((1 - r_sq) / (nobs - df_resid))) # (SSt / df_model) / (SSe / df_resid)
+    
+    # https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLSResults.rsquared_adj.html
+    r_sq_adj = getattr(results, 'rsquared_adj', 1 - (1 - r_sq) * nobs / df_resid)
+
+    # https://www.slideshare.net/slideshow/multiple-regressionppt-252604177/252604177#8
+    f_stat = getattr(results, 'fvalue', (r_sq / df_model) / ((1 - r_sq) / df_resid)) # (SSt / df_model) / (SSe / df_resid)
     f_pvalue = getattr(results, 'f_pvalue', scipy.stats.f.sf(f_stat, df_model, df_resid))
 
     return {'r_sq': r_sq,
