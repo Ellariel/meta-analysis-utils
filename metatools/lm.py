@@ -83,11 +83,10 @@ def r_sq(results):
     SSt = np.sum((weights * (observed - np.mean(weights * observed)) ) ** 2)
     r_sq = getattr(results, 'rsquared', 
                 getattr(results, 'pseudo_rsquared', 1 - SSe/SSt))
+    r_sq = r_sq() if callable(r_sq) else r_sq
     r_sq_adj = getattr(results, 'rsquared_adj', 1 - (1 - r_sq) * (nobs - 1) / (nobs - df_resid - 1))
     f_stat = getattr(results, 'fvalue', (r_sq / (df_resid - 1)) / ((1 - r_sq) / (nobs - df_resid))) # (SSt / df_model) / (SSe / df_resid)
     f_pvalue = getattr(results, 'f_pvalue', scipy.stats.f.sf(f_stat, df_model, df_resid))
-
-    r_sq = r_sq() if callable(r_sq) else r_sq
 
     return {'r_sq': r_sq,
             'r_sq_adj': r_sq_adj,
