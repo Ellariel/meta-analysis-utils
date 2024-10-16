@@ -27,7 +27,7 @@ warnings.filterwarnings("ignore")
 ### FORMAT
 
 
-def get_stars(p, p001='***', p01='**', p05='*', p10='⁺'):
+def get_stars(p, p001='***', p01='**', p05='*', p10='⁺', p_=''):
     if p < 0.001:
         return p001
     if p < 0.010:
@@ -36,7 +36,7 @@ def get_stars(p, p001='***', p01='**', p05='*', p10='⁺'):
         return p05
     if p < 0.100:
         return p10
-    return ''
+    return p_
 
 
 def format_p(p, add_p=True, keep_space=True):
