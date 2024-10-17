@@ -250,8 +250,8 @@ def lm_tree_graph(results, file_name='fig1.png', report='stars', #p ci
     axes[1].tick_params(axis='y', which='both', labelleft=False, labelright=False)
     if title==None:
         title=model
-    fig.suptitle(title, y=len(title.split('\n'))*.01+1.0, x=(x_right+x_left)/2+.009)
-    fig.text((x_right+x_left)/2+.009, 0, x_label, ha='center')
+    fig.suptitle(title, y=len(title.split('\n'))*.03+1.0, x=(x_right+x_left)/2+.009, fontsize=11)
+    fig.text((x_right+x_left)/2+.009, 0, x_label, ha='center', fontsize=10)
     fig.subplots_adjust(wspace=0, top=0.93)
     plt.savefig(file_name, dpi=dpi, bbox_inches='tight')
     plt.close()
