@@ -180,7 +180,7 @@ def ols_tree_graph(r, title, use_rlm=False, forecolor='mediumorchid', backcolor=
 
 def lm_tree_graph(results, file_name='fig1.png', report='stars', #p ci
                   title=None, exclude=[], rename_dict={}, dpi=600, x_label='$β$',
-                  forecolor='mediumorchid', backcolor='thistle', sort=True,
+                  pos_forecolor='mediumorchid', neg_forecolor='mediumorchid', backcolor='thistle', sort=True,
                   coef='coef', p_value='p-value', CIL='CIL', CIR='CIR', z='z', sig='sig'):
 
     def addlabels(x, y, rep):
@@ -234,12 +234,12 @@ def lm_tree_graph(results, file_name='fig1.png', report='stars', #p ci
         ax.grid(True)
     for i, b in enumerate(bar1):
         if len(sig1[i]):
-          b.set_color(forecolor)
+          b.set_color(neg_forecolor)
         else:
           b.set_color(backcolor)
     for i, b in enumerate(bar2):
         if len(sig2[i]):
-          b.set_color(forecolor)
+          b.set_color(pos_forecolor)
         else:
           b.set_color(backcolor)
     x_left, x_right = plt.xlim()
