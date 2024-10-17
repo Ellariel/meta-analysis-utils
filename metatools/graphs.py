@@ -178,7 +178,7 @@ def ols_tree_graph(r, title, use_rlm=False, forecolor='mediumorchid', backcolor=
     return fig
 
 
-def lm_tree_graph(results, file_name='fig1.png', report='stars', #p ci
+def lm_tree_graph(results, file_name='fig1.png', yaxis=True, xaxis=True, report='stars', #p ci
                   title=None, exclude=[], rename_dict={}, dpi=600, x_label='$β$',
                   pos_forecolor='mediumorchid', neg_forecolor='mediumorchid', backcolor='thistle', sort=True,
                   coef='coef', p_value='p-value', CIL='CIL', CIR='CIR', z='z', sig='sig'):
@@ -226,7 +226,13 @@ def lm_tree_graph(results, file_name='fig1.png', report='stars', #p ci
     fig, axes = plt.subplots(ncols=2, sharey=True, figsize=(5, 3.5))
     bar1 = axes[0].barh(y1, x1, align='center', color='red')
     bar2 = axes[1].barh(y2, x2, align='center', color='blue')
-    axes[0].set(yticks=y, yticklabels=yl1 + yl2)
+    if yaxis:
+      axes[0].set(yticks=y, yticklabels=yl1 + yl2)
+    else:
+      axes[0].set(yticks=y, yticklabels=['']*len(yl1 + yl2))
+    if not xaxis:
+      axes[0].set(xticklabels=[])
+      axes[1].set(xticklabels=[])
     axes[0].set_xlim([-1, -0.001])
     axes[1].set_xlim([0.001, 1])
     for ax in axes.flat:
@@ -254,5 +260,23 @@ def lm_tree_graph(results, file_name='fig1.png', report='stars', #p ci
     fig.text((x_right+x_left)/2+.009, 0, x_label, ha='center', fontsize=10)
     fig.subplots_adjust(wspace=0, top=0.93)
     plt.savefig(file_name, dpi=dpi, bbox_inches='tight')
+    plt.close()
+    return fig
+
+def concat_figures(figures, figsize=(8, 5), axis=1, dpi=600, file_name=None):
+    figures = [np.asarray(f.canvas.buffer_rgba()) for f in figures]
+    r = np.sum([i.shape[axis] for i in figures])
+    if axis:
+          fig, axs = plt.subplots(1, len(figures), figsize=figsize, dpi=dpi, 
+                                width_ratios=[i.shape[axis] / r for i in figures])
+    else:
+          fig, axs = plt.subplots(len(figures), 1, figsize=figsize, dpi=dpi, 
+                                height_ratios=[i.shape[axis] / r for i in figures])
+    fig.subplots_adjust(wspace=0, hspace=0)
+    for ax, a in zip(axs, figures):
+        ax.set_axis_off()
+        ax.matshow(a, aspect='equal')
+    if file_name != None:
+      plt.savefig(file_name, dpi=dpi, bbox_inches='tight')
     plt.close()
     return fig
