@@ -178,90 +178,84 @@ def ols_tree_graph(r, title, use_rlm=False, forecolor='mediumorchid', backcolor=
     return fig
 
 
-def lm_tree_graph(results, file_name='fig1.png', yaxis=True, xaxis=True, report='stars', #p ci
-                  title=None, exclude=[], rename_dict={}, dpi=600, x_label='$β$',
-                  pos_forecolor='mediumorchid', neg_forecolor='mediumorchid', backcolor='thistle', sort=True,
-                  coef='coef', p_value='p-value', CIL='CIL', CIR='CIR', z='z', sig='sig'):
+def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], rename_dict={}, file_name='fig1.png', 
+                  yaxis=True, xaxis=True, report='stars', dpi=600, figsize=(5, 3.5), xlim=[-1, 1],
+                  pos_forecolor='mediumorchid', neg_forecolor='mediumorchid', backcolor='thistle',
+                  coef='coef', pvalue='p-value', CIL='CIL', CIR='CIR', sig='sig'):
 
     def addlabels(x, y, rep):
       for i, j in enumerate(x):
           if j < 0.0:
-            plt.text(j-0.04, y[i]-0.04, rep[i], ha='right')
+              plt.text(j-0.04, y[i]-0.04, rep[i], ha='right')
           else:
-            plt.text(j+0.04, y[i]-0.04, rep[i], ha='left')
+              plt.text(j+0.04, y[i]-0.04, rep[i], ha='left')
 
-    model = results.model.iloc[0]
-    results = results.copy()
-    if sort:
-      results = results.sort_values(by=z, key=lambda x: abs(x))
+    r = results.copy()  
     for e in exclude:
-      if e in results.index:
-        results.drop(index=e, axis=0, inplace=True)
-    results.index = pd.Series(results.index).apply(lambda x: rename_dict[x] if x in rename_dict else x)
-
-    x1 = results[results[coef] < 0.0][coef].to_list()
-    sig1 = results[results[coef] < 0.0][sig].to_list()
-    x2 = results[results[coef] > 0.0][coef].to_list()
-    sig2 = results[results[coef] > 0.0][sig].to_list()
-    if report == 'p':
-        l1 = results[results[coef] < 0.0][p_value].to_list()
-        l1 = ['p='+i if i[0]=='.' else 'p'+i for i in l1]
-        l2 = results[results[coef] > 0.0][p_value].to_list()
-        l2 = ['p='+i if i[0]=='.' else 'p'+i for i in l2]
-    elif report == 'ci':
-        ll1 = results[results[coef] < 0.0][CIL].to_list()
-        rl1 = results[results[coef] < 0.0][CIR].to_list()
-        l1 = [f'[{i}, {j}]' for i, j in zip(ll1, rl1)]
-        ll2 = results[results[coef] > 0.0][CIL].to_list()
-        rl2 = results[results[coef] > 0.0][CIR].to_list()
-        l2 = [f'[{i}, {j}]' for i, j in zip(ll2, rl2)]
-    else:
-      l1 = sig1
-      l2 = sig2
-    y1 = range(len(x1))
-    y2 = range(len(x1), (len(x1) + len(x2)))
+      if e in r.index:
+        r.drop(index=e, axis=0, inplace=True)
+    r.index = pd.Series(r.index).apply(lambda x: rename_dict[x] 
+                                                if x in rename_dict else x)
+    neg, pos = r[r[coef] < 0.0], r[r[coef] >= 0.0]
+    x1, sig1, x2, sig2 = (neg[coef].to_list(), neg[sig].to_list(), 
+                                    pos[coef].to_list(), pos[sig].to_list())
+    yl1, yl2 = neg.index.to_list(), pos.index.to_list()
+    y1, y2 = range(len(x1)), range(len(x1), len(x1) + len(x2))
     y = range(len(x1) + len(x2))
-    yl1 = results[results[coef] < 0.0].index.to_list()
-    yl2 = results[results[coef] > 0.0].index.to_list()
-    fig, axes = plt.subplots(ncols=2, sharey=True, figsize=(5, 3.5))
+    if report == 'p':
+        xl1 = neg[pvalue].to_list()
+        xl1 = ['p='+i if i[0]=='.' else 'p'+i for i in xl1]
+        xl2 = pos[pvalue].to_list()
+        xl2 = ['p='+i if i[0]=='.' else 'p'+i for i in xl2]
+    elif report == 'ci': 
+        xl1 = [f'[{i}, {j}]' for i, j in zip(neg[CIL].to_list(), 
+                                              neg[CIR].to_list())]
+        xl2 = [f'[{i}, {j}]' for i, j in zip(pos[CIL].to_list(), 
+                                              pos[CIR].to_list())]
+    else:
+      xl1, xl2 = sig1, sig2
+
+    fig, axes = plt.subplots(ncols=2, sharey=True, figsize=figsize)
     bar1 = axes[0].barh(y1, x1, align='center', color='red')
     bar2 = axes[1].barh(y2, x2, align='center', color='blue')
     if yaxis:
-      axes[0].set(yticks=y, yticklabels=yl1 + yl2)
+        axes[0].set(yticks=y, yticklabels=yl1 + yl2)
     else:
-      axes[0].set(yticks=y, yticklabels=['']*len(yl1 + yl2))
+        axes[0].set(yticks=y, yticklabels=[])
     if not xaxis:
-      axes[0].set(xticklabels=[])
-      axes[1].set(xticklabels=[])
-    axes[0].set_xlim([-1, -0.001])
-    axes[1].set_xlim([0.001, 1])
+        axes[0].set(xticklabels=[])
+        axes[1].set(xticklabels=[])
+    axes[0].set_xlim([xlim[0], -0.001])
+    axes[1].set_xlim([0.001, xlim[1]])
     for ax in axes.flat:
-        ax.margins(0.03)
-        ax.grid(True)
+          ax.margins(0.03)
+          ax.grid(True)
     for i, b in enumerate(bar1):
         if len(sig1[i]):
-          b.set_color(neg_forecolor)
+            b.set_color(neg_forecolor)
         else:
-          b.set_color(backcolor)
+            b.set_color(backcolor)
     for i, b in enumerate(bar2):
         if len(sig2[i]):
-          b.set_color(pos_forecolor)
+            b.set_color(pos_forecolor)
         else:
-          b.set_color(backcolor)
+            b.set_color(backcolor)
     x_left, x_right = plt.xlim()
     y_bottom, y_top = plt.ylim()
-    addlabels(x1, y1, l1)
-    addlabels(x2, y2, l2)
+    addlabels(x1, y1, xl1)
+    addlabels(x2, y2, xl2)
     axes[0].tick_params(axis='y', which='both', labelleft=True, labelright=False)
     axes[1].tick_params(axis='y', which='both', labelleft=False, labelright=False)
-    if title==None:
-        title=model
-    fig.suptitle(title, y=len(title.split('\n'))*.03+1.0, x=(x_right+x_left)/2+.009, fontsize=11)
-    fig.text((x_right+x_left)/2+.009, 0, x_label, ha='center', fontsize=10)
+    if title != None:
+        fig.suptitle(title, y=len(title.split('\n'))*.03+1.0, 
+                            x=(x_right+x_left)/2+.009, fontsize=11)
+    if xlabel:
+        fig.text((x_right+x_left)/2+.009, 0, xlabel, ha='center', fontsize=10)
     fig.subplots_adjust(wspace=0, top=0.93)
     plt.savefig(file_name, dpi=dpi, bbox_inches='tight')
     plt.close()
     return fig
+
 
 def concat_figures(figures, figsize=(8, 5), axis=1, dpi=600, file_name=None):
     figures = [np.asarray(f.canvas.buffer_rgba()) for f in figures]
