@@ -3,7 +3,7 @@ import pandas as pd
 import scipy
 import statsmodels.api as sm
 from sklearn.model_selection import LeaveOneOut
-
+from diagnostic import vif
 
 
 def fit_model(model, Y, X, **kwargs): # model.fit() generator function
@@ -105,7 +105,7 @@ def r_sq(results):
             'df_resid': df_resid,
             'f_stat': f_stat,
             'f_pvalue': f_pvalue}
-
+      
 
 def lm(data, y, x, model='ols', **kwargs):
     '''
@@ -126,6 +126,7 @@ def lm(data, y, x, model='ols', **kwargs):
     standardized = kwargs.pop('standardized', False)
     add_r_sq = kwargs.pop('r_sq', False)
     add_pred_r_sq = kwargs.pop('pred_r_sq', False)
+    calc_vif = kwargs.pop('vif', False)
 
     if verbose and constant and standardized:
         print('Having constant=True and standardized=True at the same time does not make sense and can lead to errors.')
@@ -158,5 +159,8 @@ def lm(data, y, x, model='ols', **kwargs):
         if add_pred_r_sq:
             info = [{**r, **{'pred_r_sq': rr}} 
                         for r, rr in zip(info, pred_r_sq(model, Y, X, **kwargs))]
+    if calc_vif:
+        info = [{**i, **{'vif': vif(r)}} 
+                    for i, r in zip(info, results)]
 
     return results, info

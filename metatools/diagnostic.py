@@ -8,6 +8,21 @@ from statsmodels.tools.tools import maybe_unwrap_results
 from statsmodels.graphics.gofplots import ProbPlot
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
+def vif(results, sort=False):
+    """
+    VIF table
+
+    VIF, the variance inflation factor, is a measure of multicollinearity.
+    VIF > 5 for a variable indicates that it is highly collinear with the
+    other input variables.
+    """
+    vif_df = pd.DataFrame()
+    vif_df["VIF"] = [variance_inflation_factor(results.model.exog, i) 
+                                    for i in range(results.model.exog.shape[1])]
+    vif_df.index = results.model.exog_names
+    vif_df = vif_df if not sort else vif_df.sort_values("VIF")
+    return vif_df.round(2)  
+
 class lm_diag():
     """
     Diagnostic plots to identify potential problems in a linear regression fit.
@@ -293,13 +308,7 @@ class lm_diag():
         VIF > 5 for a variable indicates that it is highly collinear with the
         other input variables.
         """
-        vif_df = pd.DataFrame()
-        vif_df["variables"] = self.xvar_names
-        vif_df["VIF"] = [variance_inflation_factor(self.xvar, i) for i in range(self.xvar.shape[1])]
-        vif_df = vif_df if not sort else vif_df.sort_values("VIF")
-
-        return vif_df.round(2)
-
+        return vif(self.results, sort=sort)
 
     def __cooks_dist_line(self, factor):
         """
