@@ -178,7 +178,7 @@ def ols_tree_graph(r, title, use_rlm=False, forecolor='mediumorchid', backcolor=
     return fig
 
 
-def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], rename_dict={}, file_name='fig1.png', 
+def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], reindex=[], rename_dict={}, file_name='fig1.png', 
                   yaxis=True, xaxis=True, report='stars', dpi=600, figsize=(5, 3.5), xlim=[-1, 1],
                   pos_forecolor='mediumorchid', neg_forecolor='mediumorchid', backcolor='thistle',
                   coef='coef', pvalue='p-value', CIL='CIL', CIR='CIR', sig='sig'):
@@ -190,7 +190,9 @@ def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], rename_dict={}
           else:
               plt.text(j+0.04, y[i]-0.04, rep[i], ha='left')
 
-    r = results.copy()  
+    r = results.copy()
+    if len(reindex):
+      r = r.reindex(reindex)  
     for e in exclude:
       if e in r.index:
         r.drop(index=e, axis=0, inplace=True)
