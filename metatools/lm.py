@@ -3,7 +3,7 @@ import pandas as pd
 import scipy
 import statsmodels.api as sm
 from sklearn.model_selection import LeaveOneOut
-from diagnostic import vif
+from .diagnostic import vif
 
 
 def fit_model(model, Y, X, **kwargs): # model.fit() generator function
