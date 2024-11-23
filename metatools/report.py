@@ -95,12 +95,29 @@ def lm_APA(results, info={}, decimal=None):
 
 #for r, i in zip_longest(results, info, fillvalue={}):
 ### STATISTICS
-def CI_for_mean(data, func=np.mean, p=0.95, n=1000, seed=13):
+def cohen_d(group1, group2):
+    # small (0.2), medium (0.5) and large (0.8)
+    mean1, mean2 = np.mean(group1), np.mean(group2)
+    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
+    n1, n2 = len(group1), len(group2)
+    pooled_std = np.sqrt(((n1 - 1) * std1 ** 2 + (n2 - 1) * std2 ** 2) / (n1 + n2 - 2))
+    return (mean1 - mean2) / pooled_std
+
+def CI_for_diff(group1, group2, func=cohen_d, p=0.95, n_rep=1000, seed=13):
+    random.seed(seed)
+    np.random.seed(seed)
+    simulations = [func(np.random.choice(group1, size=len(group1), replace=True),
+                           np.random.choice(group2, size=len(group2), replace=True)) 
+                                                          for i in range(n_rep)]
+    lp, rp, d = (1-p)/2, 1-(1-p)/2, func(group1, group2)
+    return np.hstack([d, np.percentile(simulations, [lp*100, rp*100])])
+
+def CI_for_mean(data, func=np.mean, p=0.95, n_rep=1000, seed=13):
     # Bootstrapped 95% confidence intervals for the mean/median value from 1000 resamples are reported.
     # https://towardsdatascience.com/how-to-calculate-confidence-intervals-in-python-a8625a48e62b
     random.seed(seed)
     np.random.seed(seed)
-    simulations = [func(np.random.choice(data, size=len(data), replace=True)) for i in range(n)]
+    simulations = [func(np.random.choice(data, size=len(data), replace=True)) for i in range(n_rep)]
     lp, rp, m = (1-p)/2, 1-(1-p)/2, func(data)
     return np.hstack([m, np.percentile(simulations, [lp*100, rp*100])])
 
