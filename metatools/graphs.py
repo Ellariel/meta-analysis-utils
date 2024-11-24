@@ -181,14 +181,16 @@ def ols_tree_graph(r, title, use_rlm=False, forecolor='mediumorchid', backcolor=
 def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], reindex=[], rename_dict={}, file_name='fig1.png', 
                   yaxis=True, xaxis=True, report='stars', dpi=600, figsize=(5, 3.5), xlim=[-1, 1],
                   pos_forecolor='mediumorchid', neg_forecolor='mediumorchid', backcolor='thistle',
-                  coef='coef', pvalue='p-value', CIL='CIL', CIR='CIR', sig='sig'):
-
+                  coef='coef', pvalue='p-value', CIL='CIL', CIR='CIR', sig='sig',
+                  title_fontsize=None, xlabel_fontsize=None, ylabel_fontsize=None):
+                  # fontsize {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
     def addlabels(x, y, rep):
+      d = {'fontsize': ylabel_fontsize} if ylabel_fontsize else {}
       for i, j in enumerate(x):
           if j < 0.0:
-              plt.text(j-0.04, y[i]-0.04, rep[i], ha='right')
+              plt.text(j-0.04, y[i]-0.04, rep[i], ha='right', **d)
           else:
-              plt.text(j+0.04, y[i]-0.04, rep[i], ha='left')
+              plt.text(j+0.04, y[i]-0.04, rep[i], ha='left', **d)
 
     r = results.copy()
     if len(reindex):
@@ -243,16 +245,18 @@ def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], reindex=[], re
         else:
             b.set_color(backcolor)
     x_left, x_right = plt.xlim()
-    y_bottom, y_top = plt.ylim()
     addlabels(x1, y1, xl1)
     addlabels(x2, y2, xl2)
     axes[0].tick_params(axis='y', which='both', labelleft=True, labelright=False)
     axes[1].tick_params(axis='y', which='both', labelleft=False, labelright=False)
     if title != None:
-        fig.suptitle(title, y=len(title.split('\n'))*.03+1.0, 
-                            x=(x_right+x_left)/2+.009, fontsize=11)
+        d = {'fontsize': title_fontsize} if title_fontsize else {}
+        fig.suptitle(title, y=len(title.split('\n'))*.03+1.015, transform=axes[0].transAxes,
+                            x=x_right+.009, **d)
     if xlabel:
-        fig.text((x_right+x_left)/2+.009, 0, xlabel, ha='center', fontsize=10)
+        d = {'fontsize': xlabel_fontsize} if xlabel_fontsize else {}
+        fig.text(x_right+.009, -0.035, xlabel, ha='center', 
+                 transform=axes[0].transAxes, **d)
     fig.subplots_adjust(wspace=0, top=0.93)
     plt.savefig(file_name, dpi=dpi, bbox_inches='tight')
     plt.close()
