@@ -69,13 +69,15 @@ def lm_APA(results, info={}, decimal=None):
     # R² = .34, R²adj = .34, R²pred = .34, F(1, 416) = 6.71, p = .009
     res = []
     for r, i in zip_longest(results, info, fillvalue={}):
-        if 'pred_r_sq' not in i:
-            if 'r_sq' in i:
-                i = f"R² = {format_r(i['r_sq'])}, R²adj = {format_r(i['r_sq_adj'])}, F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
-            else:
-                i = ''
-        else:
-            i = f"R² = {format_r(i['r_sq'])}, R²adj = {format_r(i['r_sq_adj'])}, R²pred = {format_r(i['pred_r_sq'])}, F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
+        s = []
+        if 'r_sq' in i:
+                s.append(f"R² = {format_r(i['r_sq'])}")
+        if 'r_sq_adj' in i:
+                s.append(f"R²adj = {format_r(i['r_sq_adj'])}")
+        if 'pred_r_sq' in i:
+                s.append(f"R²pred = {format_r(i['pred_r_sq'])}")
+        s.append(f"F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}")
+        s = ', '.join(s)
         params = pd.read_html(r.summary().tables[1].as_html(), header=0, index_col=0)[0]\
                                 .rename(columns={'P>|z|' : 'p-value',
                                                  'std err' : 'std_err',
@@ -88,7 +90,7 @@ def lm_APA(results, info={}, decimal=None):
         params['p-value'] = [format_p(c, add_p=False, keep_space=False) for c in params['p-value']]
         if len(i):
             params['model'] = ''
-            params['model'].iloc[0] = i
+            params['model'].iloc[0] = s
         res.append(params)
     return res
 
