@@ -263,7 +263,7 @@ def lm_tree_graph(results, title=None, xlabel='$β$', exclude=[], reindex=[], re
     return fig
 
 
-def concat_figures(figures, figsize=(8, 5), axis=1, dpi=600, file_name=None):
+def concat_figures(figures, figsize=(8, 5), axis=1, dpi=600, file_name=None, show=False):
     figures = [np.asarray(f.canvas.buffer_rgba()) for f in figures]
     r = np.sum([i.shape[axis] for i in figures])
     if axis:
@@ -276,6 +276,8 @@ def concat_figures(figures, figsize=(8, 5), axis=1, dpi=600, file_name=None):
     for ax, a in zip(axs, figures):
         ax.set_axis_off()
         ax.matshow(a, aspect='equal')
+    if show:
+      plt.show()
     if file_name != None:
       plt.savefig(file_name, dpi=dpi, bbox_inches='tight')
     plt.close()
