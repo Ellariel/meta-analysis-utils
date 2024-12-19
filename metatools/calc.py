@@ -44,11 +44,30 @@ def t_from_z(z):
     return 10*z + 50
 
 
+def p_from_z(z, method='two-tailed'): 
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
+    p = scipy.stats.norm.sf(z)*2 if method == 'two-tailed' else scipy.stats.norm.sf(z)
+    return p
+
+
 def z_from_p(p, method='two-tailed'): 
     # Fisher's z from p-value
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
     # https://www.gigacalculator.com/calculators/p-value-to-z-score-calculator.php
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
     z = scipy.stats.norm.ppf(p/2) if method == 'two-tailed' else scipy.stats.norm.ppf(p)
-    return -z
+    return abs(z)
+
+
+def p_from_CI(estimate, CIL, CIR, alpha=0.95, method='two-tailed'):
+    # https://genometoolbox.blogspot.com/2013/11/how-to-estimate-p-value-from-confidence.html
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    m = (CIR - CIL) / 2
+    se = m / z_from_p(1-alpha) # z-critical is used
+    z = estimate / se
+    p = p_from_z(z, method=method)
+    return p
 
 
 def cohen_r_from_p(p, n, method='two-tailed'): 
