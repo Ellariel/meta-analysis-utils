@@ -44,10 +44,27 @@ def t_from_z(z):
     return 10*z + 50
 
 
+def t_from_r(r, n):
+    # https://stats.stackexchange.com/questions/400146/how-to-derive-the-formula-of-the-t-test-of-the-correlation-coefficient
+    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
+    df = n - 2
+    t = r / math.sqrt((1 - r*r) / df)
+    return t
+
+
 def p_from_z(z, method='two-tailed'): 
     # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
     # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
     p = scipy.stats.norm.sf(z)*2 if method == 'two-tailed' else scipy.stats.norm.sf(z)
+    return p
+
+
+def p_from_t(t, n, method='two-tailed'): 
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
+    df = n - 2
+    p = scipy.stats.t.sf(t, df)*2 if method == 'two-tailed' else scipy.stats.t.sf(t, df)
     return p
 
 
@@ -134,12 +151,13 @@ def r_from_f(f, df):
     # Сorrelation r from F-statistic
     # https://juls-dotcom.github.io/meta_analysis.html
     return f / math.sqrt(f + df)
-    
 
-def r_from_t(t, df): 
+
+def r_from_t(t, n): 
     # Сorrelation r from t-statistic
     # https://juls-dotcom.github.io/meta_analysis.html
-    return t*t / math.sqrt(t*t + df)
+    df = n - 2
+    return t / math.sqrt(t*t + df)
 
 
 def r_from_z(z, n): 
