@@ -65,8 +65,11 @@ def format_r(r):
     return r
 
 
-def lm_APA(results, info={}, decimal=None): 
+def lm_APA(results, info={}, decimal=None):
     # R² = .34, R²adj = .34, R²pred = .34, F(1, 416) = 6.71, p = .009
+    
+    from io import StringIO 
+    
     res = []
     for r, i in zip_longest(results, info, fillvalue={}):
         s = []
@@ -78,7 +81,7 @@ def lm_APA(results, info={}, decimal=None):
                 s.append(f"R²pred = {format_r(i['pred_r_sq'])}")
         s.append(f"F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}")
         s = ', '.join(s)
-        params = pd.read_html(r.summary().tables[1].as_html(), header=0, index_col=0)[0]\
+        params = pd.read_html(StringIO(r.summary().tables[1].as_html()), header=0, index_col=0)[0]\
                                 .rename(columns={'P>|z|' : 'p-value',
                                                  'std err' : 'std_err',
                                                  '[0.025' : 'CIL',
@@ -90,7 +93,8 @@ def lm_APA(results, info={}, decimal=None):
         params['p-value'] = [format_p(c, add_p=False, keep_space=False) for c in params['p-value']]
         if len(i):
             params['model'] = ''
-            params['model'].iloc[0] = s
+            #params['model'].iloc[0] = s
+            params.loc[params.index[0], 'model'] = s
         res.append(params)
     return res
 

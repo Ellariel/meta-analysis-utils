@@ -1,7 +1,220 @@
 import numpy as np
-import math
 import random
+import math
 import scipy
+
+
+##############
+# conversion #
+##############
+
+
+def d_from_r(r): 
+    # https://stats.stackexchange.com/questions/390549/converting-between-correlation-and-effect-size-cohens-d
+    # assume equal groups
+    # unequal here https://stats.stackexchange.com/questions/526789/convert-correlation-r-to-cohens-d-unequal-groups-of-known-size
+    
+    return 2 * r / math.sqrt(1 - r*r)
+
+def r_from_d(d): 
+    # Сorrelation r from Cohen's d
+    # https://www.escal.site/
+    # https://easystats.github.io/effectsize/reference/d_to_r.html
+    # https://www.statisticshowto.com/probability-and-statistics/statistics-definitions/cohens-d/
+    
+    return d / math.sqrt(d*d + 4) # assume equal groups
+
+def t_from_r(r, n):
+    # https://stats.stackexchange.com/questions/400146/how-to-derive-the-formula-of-the-t-test-of-the-correlation-coefficient
+    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
+    
+    df = n - 2
+    t = r / math.sqrt((1 - r*r) / df)
+    return t
+
+def r_from_t(t, n): 
+    # Сorrelation r from t-statistic
+    # https://juls-dotcom.github.io/meta_analysis.html
+    
+    df = n - 2
+    return t / math.sqrt(t*t + df)
+
+def d_from_t(t, n): 
+    # Cohen’s d from t-statistic
+    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
+    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
+    
+    df = n - 2
+    return 2 * t / math.sqrt(df)
+
+def t_from_d(d, n):
+    # Cohen’s d from t-statistic
+    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
+    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
+    
+    df = n - 2
+    return d * math.sqrt(df) / 2
+
+def z_from_r(r): 
+    # Fisher's z from correlation r
+    # https://www.escal.site/
+    # https://en.wikipedia.org/wiki/Fisher_transformation
+    # np.log((1 + r)/(1 - r)) / 2
+    
+    return math.atanh(r)
+
+def r_from_z(z): 
+    # Сorrelation r (Cohen’s r) from Fisher's z 
+    # https://www.escal.site/
+    # https://www.statisticshowto.com/fisher-z/
+    # https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions
+    
+    r = math.sqrt(1 - math.pow(1 / math.cosh(z), 2))
+    r = math.copysign(r, z)
+    return r
+
+
+###########
+# p-value #
+###########
+
+
+def z_from_p(p, method='two-tailed'): 
+    # Fisher's z from p-value
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    # https://www.gigacalculator.com/calculators/p-value-to-z-score-calculator.php
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
+    
+    p = p / 2 if method == 'two-tailed' else p
+    z = scipy.stats.norm.ppf(p)
+    return abs(z)
+
+def p_from_z(z, method='two-tailed'): 
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
+    
+    p = scipy.stats.norm.sf(abs(z))
+    p = p * 2 if method == 'two-tailed' else p
+    return p
+
+def p_from_t(t, n, method='two-tailed'): 
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
+    
+    df = n - 2
+    p = scipy.stats.t.sf(abs(t), df)
+    p = p * 2 if method == 'two-tailed' else p
+    return p
+
+def t_from_p(p, n, method='two-tailed'): 
+    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
+    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
+    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
+    
+    df = n - 2
+    p = p / 2 if method == 'two-tailed' else p
+    t = scipy.stats.t.ppf(p, df)
+    return abs(t)
+
+def r_from_p(p, n, method='two-tailed'): 
+    # Cohen’s r from p-value
+    # Cohen’s guidelines for r are that a large effect is .5, a medium effect is .3, and a small effect is .1 (Coolican, 2009, p. 395).
+    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
+    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
+    
+    r = r_from_t(t_from_p(p, n, method=method), n)
+    return r # z_from_p(p, method=method) / math.sqrt(n)
+
+def p_from_r(r, n, method='two-tailed'): 
+    
+    p = p_from_t(t_from_r(r, n), n, method=method)
+    return p # z_from_p(p, method=method) / math.sqrt(n)
+
+
+def d_from_p(p, n, method='two-tailed'): 
+    
+    return d_from_r(r_from_p(p, n, method=method))
+
+def p_from_d(d, n, method='two-tailed'): 
+    
+    return p_from_r(r_from_d(d), n, method=method)
+
+
+##############
+# conflicted #
+##############
+
+
+def z_from_t(t, n, method=None): 
+    # t-statistic from Fisher's z
+    # https://web.cortland.edu/andersmd/STATS/stdscore.html#:~:text=As%20evidenced%20above%2C%20zscores%20are,a%20T%20score%20of%2025.
+    
+    if method:
+        p = p_from_t(t, n, method=method)
+        z = z_from_p(p, method=method)
+        return z
+    return z_from_r(r_from_t(t, n))
+
+def t_from_z(z, n, method=None): 
+    # t-statistic from Fisher's z
+    # https://web.cortland.edu/andersmd/STATS/stdscore.html#:~:text=As%20evidenced%20above%2C%20zscores%20are,a%20T%20score%20of%2025.
+    
+    if method:
+        p = p_from_z(z, method=method)
+        t = t_from_p(p, n, method=method)
+        return t
+    return t_from_r(r_from_z(z), n)
+
+
+def d_from_z(z):
+    # https://easystats.github.io/effectsize/reference/t_to_r.html
+    # assumed equal groups
+    
+    return d_from_r(r_from_z(z))
+
+def z_from_d(d):
+    # https://easystats.github.io/effectsize/reference/t_to_r.html
+    # assumed equal groups
+    
+    return z_from_r(r_from_d(d))
+
+
+##############
+# Cohen r, d #
+##############
+
+
+def cohen_r_from_p(p, n, method='two-tailed'): 
+    return r_from_p(p, n, method=method)
+
+def cohen_r_from_d(d): 
+    return r_from_d(d)
+
+def cohen_r_from_z(z): 
+    return r_from_z(z)
+
+def cohen_r_from_t(t, n):
+    return r_from_t(t, n)
+
+def cohen_d_from_p(p, n, method='two-tailed'): 
+    return d_from_p(p, n, method=method)
+
+def cohen_d_from_r(r): 
+    return d_from_r(r)
+
+def cohen_d_from_z(z): 
+    return d_from_z(z)
+
+def cohen_d_from_t(t, n):
+    return d_from_t(t, n)
+
+
+########################
+# Confidence intervals #
+########################
+
+
 
 
 
@@ -38,43 +251,19 @@ def t_from_b(b, se):
     return b/se
 
 
-def t_from_z(z): 
-    # t-statistic from Fisher's z
-    # https://web.cortland.edu/andersmd/STATS/stdscore.html#:~:text=As%20evidenced%20above%2C%20zscores%20are,a%20T%20score%20of%2025.
-    return 10*z + 50
 
 
-def t_from_r(r, n):
-    # https://stats.stackexchange.com/questions/400146/how-to-derive-the-formula-of-the-t-test-of-the-correlation-coefficient
-    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
-    df = n - 2
-    t = r / math.sqrt((1 - r*r) / df)
-    return t
 
 
-def p_from_z(z, method='two-tailed'): 
-    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
-    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
-    p = scipy.stats.norm.sf(z)*2 if method == 'two-tailed' else scipy.stats.norm.sf(z)
-    return p
 
 
-def p_from_t(t, n, method='two-tailed'): 
-    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
-    # t-critical = stats.t.ppf(alpha/numOfTails, ddof)
-    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
-    df = n - 2
-    p = scipy.stats.t.sf(t, df)*2 if method == 'two-tailed' else scipy.stats.t.sf(t, df)
-    return p
 
 
-def z_from_p(p, method='two-tailed'): 
-    # Fisher's z from p-value
-    # z-critical = stats.norm.ppf(1 - alpha) (use alpha = alpha/2 for two-sided)
-    # https://www.gigacalculator.com/calculators/p-value-to-z-score-calculator.php
-    # https://stackoverflow.com/questions/20864847/probability-to-z-score-and-vice-versa
-    z = scipy.stats.norm.ppf(p/2) if method == 'two-tailed' else scipy.stats.norm.ppf(p)
-    return abs(z)
+
+
+
+
+
 
 
 def p_from_CI(estimate, CIL, CIR, alpha=0.95, method='two-tailed'):
@@ -86,34 +275,6 @@ def p_from_CI(estimate, CIL, CIR, alpha=0.95, method='two-tailed'):
     p = p_from_z(z, method=method)
     return p
 
-
-def cohen_r_from_p(p, n, method='two-tailed'): 
-    # Cohen’s r from p-value
-    # Cohen’s guidelines for r are that a large effect is .5, a medium effect is .3, and a small effect is .1 (Coolican, 2009, p. 395).
-    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
-    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
-    return z_from_p(p, method=method) / math.sqrt(n)
-    
-
-def cohen_r_from_z(z, n): 
-    # Cohen’s r from Fisher's z 
-    # Cohen’s guidelines for r are that a large effect is .5, a medium effect is .3, and a small effect is .1 (Coolican, 2009, p. 395).
-    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
-    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
-    return z / math.sqrt(n)
-
-
-def cohen_d_from_z(z, n): 
-    # Cohen’s d from Fisher's z 
-    # https://easystats.github.io/effectsize/reference/t_to_r.html
-    return 2*z / math.sqrt(n)
-
-
-def cohen_d_from_t(t, n): 
-    # Cohen’s d from t-statistic
-    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
-    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
-    return 2*t / math.sqrt(n-2)
 
 
 def cohen_d_from_f(f, df_num, df_denom): 
@@ -127,48 +288,10 @@ def cohen_d_from_f(f, df_num, df_denom):
     return d
 
 
-def cohen_d_from_r(r): 
-    # Cohen's d from correlation r  
-    # https://easystats.github.io/effectsize/reference/d_to_r.html
-    return math.sqrt(4) * r / math.sqrt(1 - r*r) # assume equal groups
-
-
-def z_from_r(r): 
-    # Fisher's z from correlation r
-    # https://www.escal.site/
-    # https://en.wikipedia.org/wiki/Fisher_transformation
-    return math.atanh(r) # np.log((1 + r)/(1 - r)) / 2
-
-
-def r_from_cohen_d(d): 
-    # Сorrelation r from Cohen's d
-    # https://www.escal.site/
-    # https://easystats.github.io/effectsize/reference/d_to_r.html
-    return d / math.sqrt(d*d + 4) # assume equal groups
-
-
 def r_from_f(f, df): 
     # Сorrelation r from F-statistic
     # https://juls-dotcom.github.io/meta_analysis.html
     return f / math.sqrt(f + df)
-
-
-def r_from_t(t, n): 
-    # Сorrelation r from t-statistic
-    # https://juls-dotcom.github.io/meta_analysis.html
-    df = n - 2
-    return t / math.sqrt(t*t + df)
-
-
-def r_from_z(z, n): 
-    # Сorrelation r (Cohen’s r) from Fisher's z 
-    # https://juls-dotcom.github.io/meta_analysis.html
-    return z / math.sqrt(n)
-
-
-def r_from_p(p, n, method='two-tailed'):
-    # Сorrelation r (Cohen’s r) from p-value
-    return cohen_r_from_p(p, n, method=method)
 
 
 def unbiased_z(z): 
