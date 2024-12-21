@@ -1,0 +1,27 @@
+[project]
+name = "metatools"
+version = "0.1.0"
+description = "Some tools for statistics and proper reporting."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy==2.2.0",
+    "pandas==2.2.3",
+    "scipy==1.13.1",
+    "scikit-learn==1.5.2",
+    "seaborn==0.13.2",
+    "matplotlib>=3.9.2",
+    "statsmodels==0.14.4",
+    "factor-analyzer==0.5.1",
+    "semopy==2.3.11",
+]
+
+[dependency-groups]
+dev = [
+    "lxml==5.3.0",
+    "pytest>=8.3.4",
+    "ruff>=0.8.4",
+]
+
+[tool.uv.sources]
+metatools = { workspace = true }
