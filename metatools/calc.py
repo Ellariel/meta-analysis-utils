@@ -15,13 +15,13 @@ def d_from_r(r):
     return 2 * r / np.sqrt(1 - r * r)
 
 
-def r_from_d(d):
+def r_from_d(d, n_groups=2):
     # Сorrelation r from Cohen's d
     # https://www.escal.site/
     # https://easystats.github.io/effectsize/reference/d_to_r.html
     # https://www.statisticshowto.com/probability-and-statistics/statistics-definitions/cohens-d/
 
-    return d / np.sqrt(d * d + 4)  # assume equal groups
+    return d / np.sqrt(d * d + 2 * n_groups)  # assume equal groups
 
 
 def t_from_r(r, n):
@@ -74,9 +74,28 @@ def r_from_z(z):
     # https://www.statisticshowto.com/fisher-z/
     # https://en.wikipedia.org/wiki/Inverse_hyperbolic_functions
 
-    r = np.sqrt(1 - np.pow(1 / np.cosh(z), 2))
+    r = np.sqrt(1 - np.square(1 / np.cosh(z)))
     r = np.copysign(r, z)
     return r
+
+
+def d_from_f(f, df_num, df_denom, n_groups=2):
+    # Cohen’s d from F-statistic
+    # Cohen’s d derived from F-statistic (Fritz et al., 2012)
+    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
+    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
+    # https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00863/full
+
+    eta_sq = (f * df_num) / (f * df_num + df_denom)
+    f_sq = eta_sq / (1 - eta_sq)
+    d = np.sqrt(f_sq * 2 * n_groups)
+    return d
+
+
+def r_from_f(f, df_num, df_denom, n_groups=2):
+    # Сorrelation r from F-statistic
+
+    return r_from_d(d_from_f(f, df_num, df_denom, n_groups=n_groups), n_groups=n_groups)
 
 
 ###########
@@ -266,6 +285,10 @@ def cohen_r_from_t(t, n):
     return r_from_t(t, n)
 
 
+def cohen_r_from_f(t, n):
+    return r_from_f(t, n)
+
+
 def cohen_d_from_p(p, n, method="two-tailed"):
     return d_from_p(p, n, method=method)
 
@@ -282,26 +305,18 @@ def cohen_d_from_t(t, n):
     return d_from_t(t, n)
 
 
+def cohen_d_from_f(f, df_num, df_denom):
+    return d_from_f(f, df_num=df_num, df_denom=df_denom)
+
+
+###########
+#  other  #
+###########
+
+
 def t_from_b(b, se):
     # t-statistic from beta-coefficient
     return b / se
-
-
-def cohen_d_from_f(f, df_num, df_denom):
-    # Cohen’s d from F-statistic
-    # Cohen’s d derived from F-statistic (Fritz et al., 2012)
-    # Fritz, C. O., Morris, P. E., & Richler, J. J. (2012). Effect size estimates: Current use, calculations, and interpretation. Journal of Experimental Psychology: General, 141(1), 2–18. https://doi.org/10.1037/a0024338
-    # https://www.researchgate.net/publication/51554230_Effect_Size_Estimates_Current_Use_Calculations_and_Interpretation
-    # https://www.frontiersin.org/articles/10.3389/fpsyg.2013.00863/full
-    eta_sq = (f * df_num) / (f * df_num + df_denom)
-    d = 2 * np.sqrt(eta_sq) / np.sqrt(1 - eta_sq)
-    return d
-
-
-def r_from_f(f, df):
-    # Сorrelation r from F-statistic
-    # https://juls-dotcom.github.io/meta_analysis.html
-    return f / np.sqrt(f + df)
 
 
 def unbiased_z(z):
