@@ -92,15 +92,24 @@ def d_from_f(f, df_num, df_denom, n_groups=2):
     return d
 
 
-def r_from_f(f, df_num, df_denom, n_groups=2):
+def r_from_f(f, df_num, df_denom):
     # Сorrelation r from F-statistic
+    # f_stat = (r_sq / df_model) / ((1 - r_sq) / df_resid))
+    # https://statproofbook.github.io/P/fstat-rsq.html
 
-    return r_from_d(d_from_f(f, df_num, df_denom, n_groups=n_groups), n_groups=n_groups)
+    r_sq = 1 - (1 / (1 + f * df_num / df_denom))
+    return np.sqrt(r_sq)
 
 
 ###########
 # p-value #
 ###########
+
+
+def p_from_f(f, df_num, df_denom):
+    # p value for F-statistic
+
+    return scipy.stats.f.sf(f, df_num, df_denom)
 
 
 def z_from_p(p, method="two-tailed"):
@@ -273,8 +282,8 @@ def cohen_r_from_p(p, n, method="two-tailed"):
     return r_from_p(p, n, method=method)
 
 
-def cohen_r_from_d(d):
-    return r_from_d(d)
+def cohen_r_from_d(d, n_groups=2):
+    return r_from_d(d, n_groups=n_groups)
 
 
 def cohen_r_from_z(z):
@@ -285,8 +294,8 @@ def cohen_r_from_t(t, n):
     return r_from_t(t, n)
 
 
-def cohen_r_from_f(t, n):
-    return r_from_f(t, n)
+def cohen_r_from_f(f, df_num, df_denom):
+    return r_from_f(f, df_num, df_denom)
 
 
 def cohen_d_from_p(p, n, method="two-tailed"):
@@ -305,8 +314,8 @@ def cohen_d_from_t(t, n):
     return d_from_t(t, n)
 
 
-def cohen_d_from_f(f, df_num, df_denom):
-    return d_from_f(f, df_num=df_num, df_denom=df_denom)
+def cohen_d_from_f(f, df_num, df_denom, n_groups=2):
+    return d_from_f(f, df_num, df_denom, n_groups=n_groups)
 
 
 ###########

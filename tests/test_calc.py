@@ -12,6 +12,19 @@ def test_conversion():
     ##############
     # conversion #
     ##############
+    
+    
+    p = p_from_f(32.82, 9, 33)
+    assert s(p) == "0.000"
+
+    r = r_from_f(32.82, 9, 33)
+    assert s(r) == "0.948"
+    
+    d = d_from_f(32.82, 9, 33)
+    assert s(d) == "5.984"
+    
+    r = r_from_d(d)
+    assert s(r) == "0.948"
 
     r = 0.75
     d = d_from_r(r)
