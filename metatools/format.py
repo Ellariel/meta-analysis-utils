@@ -18,7 +18,7 @@ def get_stars(p, p001="***", p01="**", p05="*", p10="⁺", p_=""):
     return p_
 
 
-def format_p(p, keep_spaces=True, keep_p=True, no_equals=False):
+def format_p(p, use_letter="p", keep_spaces=True, no_equals=False):
     if not np.isfinite(p) or p < 0.0:
         p = "= inf"
     elif p < 0.0001:
@@ -29,16 +29,16 @@ def format_p(p, keep_spaces=True, keep_p=True, no_equals=False):
         p = "= 1."
     else:
         p = "= " + f"{p:.3f}"[1:]
-    if keep_p:
-        p = "p " + p
+    if use_letter:
+        p = use_letter + " " + p
     if not keep_spaces:
         p = p.replace(" ", "")
     if no_equals:
-        p = p.replace("=", "")
+        p = p.replace(" =", "").replace("=", "")
     return p
 
 
-def format_r(r, keep_spaces=True, keep_r=True, no_equals=False):
+def format_r(r, use_letter="r", keep_spaces=True, no_equals=False):
     if not np.isfinite(r):
         r = "= inf"
     elif np.abs(r) < 0.01:
@@ -47,11 +47,10 @@ def format_r(r, keep_spaces=True, keep_r=True, no_equals=False):
         r = "= 1."
     else:
         r = "= " + f"{'-' if r < 0.0 else ''}" + f"{np.abs(r):.2f}"[1:]
-    if keep_r:
-        r = "r " + r
+    if use_letter:
+        r = use_letter + " " + r
     if not keep_spaces:
         r = r.replace(" ", "")
     if no_equals:
-        r = r.replace("=", "")
+        r = r.replace(" =", "").replace("=", "")
     return r
-

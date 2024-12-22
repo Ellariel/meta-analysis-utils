@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.stats import spearmanr
-import statsmodels.api as sm
 from metatools.calc import *
 
 
@@ -12,17 +11,16 @@ def test_conversion():
     ##############
     # conversion #
     ##############
-    
-    
+
     p = p_from_f(32.82, 9, 33)
     assert s(p) == "0.000"
 
     r = r_from_f(32.82, 9, 33)
     assert s(r) == "0.948"
-    
+
     d = d_from_f(32.82, 9, 33)
     assert s(d) == "5.984"
-    
+
     r = r_from_d(d)
     assert s(r) == "0.948"
 
@@ -291,7 +289,7 @@ def test_bootstrap():
     # spearmanr
     # SignificanceResult(statistic=np.float64(0.7173570516842638),
     # pvalue=np.float64(0.02958657594620456))
-    
+
 
 if __name__ == "__main__":
     test_conversion()

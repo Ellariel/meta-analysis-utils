@@ -213,11 +213,11 @@ def lm_report(results, info={}, decimal=None):
     for r, i in zip_longest(results, info, fillvalue={}):
         s = []
         if "r_sq" in i:
-            s.append(f"R² {format_r(i['r_sq'], keep_r=False)}")
+            s.append(f"R² {format_r(i['r_sq'], use_letter=False)}")
         if "r_sq_adj" in i:
-            s.append(f"R²adj {format_r(i['r_sq_adj'], keep_r=False)}")
+            s.append(f"R²adj {format_r(i['r_sq_adj'], use_letter=False)}")
         if "pred_r_sq" in i:
-            s.append(f"R²pred {format_r(i['pred_r_sq'], keep_r=False)}")
+            s.append(f"R²pred {format_r(i['pred_r_sq'], use_letter=False)}")
         s.append(
             f"F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
         )
@@ -237,7 +237,8 @@ def lm_report(results, info={}, decimal=None):
                 params[c] = params[c].round(decimal)
         params["sig"] = [get_stars(c) for c in params["p-value"]]
         params["p-value"] = [
-            format_p(c, keep_p=False, keep_spaces=False, no_equals=True) for c in params["p-value"]
+            format_p(c, use_letter=False, keep_spaces=False, no_equals=True)
+            for c in params["p-value"]
         ]
         if "vif" in i:
             params = params.join(i["vif"])
