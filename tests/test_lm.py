@@ -1,5 +1,3 @@
-import pandas as pd
-import numpy as np
 import statsmodels.api as sm
 from metatools.report import lm_APA
 from metatools.lm import lm
