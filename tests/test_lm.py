@@ -42,20 +42,23 @@ def test_lm():
     results_rep = lm_report(results, info)
     print(results_rep, info)
 
-    # lm_APA OLS
-    assert results_rep[0].loc["vs"]["p-value"] == "=.002"
+    # lm_report OLS
+    assert results_rep[0].loc["vs"]["p-value"] == ".002"
+    assert s(results_rep[0].loc["vs"]["vif"]) == "1.44"
     assert (
         results_rep[0].iloc[0]["model"]
         == "R² = .80, R²adj = .79, R²pred = .75, F(2, 30) = 40.58, p < .0001"
     )
-    # lm_APA RLM
-    assert results_rep[1].loc["vs"]["p-value"] == "=.017"
+    # lm_report RLM
+    assert results_rep[1].loc["vs"]["p-value"] == ".017"
+    assert s(results_rep[1].loc["vs"]["vif"]) == "1.44"
     assert (
         results_rep[1].iloc[0]["model"]
         == "R² = .89, R²adj = .89, R²pred = .75, F(2, 30) = 126.93, p < .0001"
     )
-    # lm_APA GLM
-    assert results_rep[2].loc["vs"]["p-value"] == "=.001"
+    # lm_report GLM
+    assert results_rep[2].loc["vs"]["p-value"] == ".001"
+    assert s(results_rep[2].loc["vs"]["vif"]) == "1.44"
     assert (
         results_rep[2].iloc[0]["model"]
         == "R² = .97, R²adj = .97, R²pred = .75, F(2, 30) = 563.42, p < .0001"

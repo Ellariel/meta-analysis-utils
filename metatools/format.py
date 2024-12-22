@@ -18,7 +18,7 @@ def get_stars(p, p001="***", p01="**", p05="*", p10="⁺", p_=""):
     return p_
 
 
-def format_p(p, keep_spaces=True, keep_p=True):
+def format_p(p, keep_spaces=True, keep_p=True, no_equals=False):
     if not np.isfinite(p) or p < 0.0:
         p = "= inf"
     elif p < 0.0001:
@@ -33,10 +33,12 @@ def format_p(p, keep_spaces=True, keep_p=True):
         p = "p " + p
     if not keep_spaces:
         p = p.replace(" ", "")
+    if no_equals:
+        p = p.replace("=", "")
     return p
 
 
-def format_r(r, keep_spaces=True, keep_r=True):
+def format_r(r, keep_spaces=True, keep_r=True, no_equals=False):
     if not np.isfinite(r):
         r = "= inf"
     elif np.abs(r) < 0.01:
@@ -49,5 +51,7 @@ def format_r(r, keep_spaces=True, keep_r=True):
         r = "r " + r
     if not keep_spaces:
         r = r.replace(" ", "")
+    if no_equals:
+        r = r.replace("=", "")
     return r
 

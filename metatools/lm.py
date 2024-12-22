@@ -1,29 +1,29 @@
-import io
 import scipy
 import numpy as np
-import pandas as pd
+from io import StringIO
 import statsmodels.api as sm
 from itertools import zip_longest
+from pandas import read_html, DataFrame
 from sklearn.model_selection import LeaveOneOut
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from .format import format_r, format_p, get_stars
 
 
-def vif(results, sort=False):
+def vif(results, sort=False, round=2):
     """
     VIF, the variance inflation factor, is a measure of multicollinearity.
     VIF > 5 for a variable indicates that it is highly collinear with the
     other input variables.
     """
-    vif_df = pd.DataFrame()
+    vif_df = DataFrame()
     vif_df["vif"] = [
         variance_inflation_factor(results.model.exog, i)
         for i in range(results.model.exog.shape[1])
     ]
     vif_df.index = results.model.exog_names
     vif_df = vif_df if not sort else vif_df.sort_values("vif")
-    return vif_df.round(2)
+    return vif_df.round(round)
 
 
 def fit_model(model, Y, X, **kwargs):  # model.fit() generator function
@@ -222,8 +222,8 @@ def lm_report(results, info={}, decimal=None):
             f"F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
         )
         s = ", ".join(s)
-        params = pd.read_html(
-            io.StringIO(r.summary().tables[1].as_html()), header=0, index_col=0
+        params = read_html(
+            StringIO(r.summary().tables[1].as_html()), header=0, index_col=0
         )[0].rename(
             columns={
                 "P>|z|": "p-value",
@@ -237,7 +237,7 @@ def lm_report(results, info={}, decimal=None):
                 params[c] = params[c].round(decimal)
         params["sig"] = [get_stars(c) for c in params["p-value"]]
         params["p-value"] = [
-            format_p(c, keep_p=False, keep_spaces=False) for c in params["p-value"]
+            format_p(c, keep_p=False, keep_spaces=False, no_equals=True) for c in params["p-value"]
         ]
         if "vif" in i:
             params = params.join(i["vif"])
