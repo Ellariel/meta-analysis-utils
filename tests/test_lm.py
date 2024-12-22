@@ -63,8 +63,7 @@ def test_lm():
         == "R² = .99, R²adj = .99, R²pred = .80, F(2, 30) = 1520.63, p < .001"
     )
 
-    print("Tests for metatools.lm are PASSED!")
-
 
 if __name__ == "__main__":
     test_lm()
+    print("Tests for metatools.lm are PASSED!")

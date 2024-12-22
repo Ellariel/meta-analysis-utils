@@ -295,6 +295,7 @@ def cohen_r_from_t(t, n):
 
 
 def cohen_r_from_f(f, df_num, df_denom):
+    # Сorrelation r from F-statistic
     return r_from_f(f, df_num, df_denom)
 
 
@@ -315,6 +316,7 @@ def cohen_d_from_t(t, n):
 
 
 def cohen_d_from_f(f, df_num, df_denom, n_groups=2):
+    # Cohen's d from F-statistic
     return d_from_f(f, df_num, df_denom, n_groups=n_groups)
 
 
