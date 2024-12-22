@@ -1,8 +1,29 @@
-import numpy as np
+import io
 import scipy
+import numpy as np
+import pandas as pd
 import statsmodels.api as sm
+from itertools import zip_longest
 from sklearn.model_selection import LeaveOneOut
-from .diagnostic import vif
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+from .format import format_r, format_p, get_stars
+
+
+def vif(results, sort=False):
+    """
+    VIF, the variance inflation factor, is a measure of multicollinearity.
+    VIF > 5 for a variable indicates that it is highly collinear with the
+    other input variables.
+    """
+    vif_df = pd.DataFrame()
+    vif_df["vif"] = [
+        variance_inflation_factor(results.model.exog, i)
+        for i in range(results.model.exog.shape[1])
+    ]
+    vif_df.index = results.model.exog_names
+    vif_df = vif_df if not sort else vif_df.sort_values("vif")
+    return vif_df.round(2)
 
 
 def fit_model(model, Y, X, **kwargs):  # model.fit() generator function
@@ -131,6 +152,7 @@ def lm(data, y, x, model="ols", **kwargs):
                     constant=True,
                     standardized=False, # keeps np.number columns only
                     r_sq = True,
+                    vif = False,
                     pred_r_sq = True,
                     ols_fit_cov_type='HC1',
                     rlm_model_M=sm.robust.norms.RamsayE())
@@ -182,3 +204,44 @@ def lm(data, y, x, model="ols", **kwargs):
         info = [{**i, **{"vif": vif(r)}} for i, r in zip(info, results)]
 
     return results, info
+
+
+def lm_report(results, info={}, decimal=None):
+    # R² = .34, R²adj = .34, R²pred = .34, F(1, 416) = 6.71, p = .009
+
+    res = []
+    for r, i in zip_longest(results, info, fillvalue={}):
+        s = []
+        if "r_sq" in i:
+            s.append(f"R² {format_r(i['r_sq'], keep_r=False)}")
+        if "r_sq_adj" in i:
+            s.append(f"R²adj {format_r(i['r_sq_adj'], keep_r=False)}")
+        if "pred_r_sq" in i:
+            s.append(f"R²pred {format_r(i['pred_r_sq'], keep_r=False)}")
+        s.append(
+            f"F({i['df_model']}, {i['df_resid']}) = {i['f_stat']:.2f}, {format_p(i['f_pvalue'])}"
+        )
+        s = ", ".join(s)
+        params = pd.read_html(
+            io.StringIO(r.summary().tables[1].as_html()), header=0, index_col=0
+        )[0].rename(
+            columns={
+                "P>|z|": "p-value",
+                "std err": "se",
+                "[0.025": "cil",
+                "0.975]": "cir",
+            }
+        )
+        if decimal:
+            for c in ["coef", "se", "cil", "cir"]:
+                params[c] = params[c].round(decimal)
+        params["sig"] = [get_stars(c) for c in params["p-value"]]
+        params["p-value"] = [
+            format_p(c, keep_p=False, keep_spaces=False) for c in params["p-value"]
+        ]
+        if "vif" in i:
+            params = params.join(i["vif"])
+        if len(i):
+            params.loc[params.index[0], "model"] = s
+        res.append(params)
+    return res

@@ -1,12 +1,13 @@
 import statsmodels.api as sm
-from metatools.lm import lm, lm_report
+from metatools.format import lm_APA
+from metatools.lm import lm
 
 
 def s(x):
-    return f"{x:.2f}"
+    return f"{x:.3f}"
 
 
-def test_lm():
+def test_report():
     test_data = sm.datasets.get_rdataset("mtcars", "datasets", cache=True).data
     assert len(test_data) == 32
 
@@ -20,7 +21,6 @@ def test_lm():
         verbose=True,
         constant=True,
         standardized=False,
-        vif=True,
         r_sq=True,
         pred_r_sq=True,
         ols_fit_cov_type="HC1",
@@ -39,29 +39,29 @@ def test_lm():
     assert s(results[2].pvalues.iloc[1]) == "0.00"
     assert s(info[2]["pred_r_sq"]) == "0.75"
 
-    results_rep = lm_report(results, info)
-    print(results_rep, info)
+    results_APA = lm_APA(results, info)
+    print(results_APA)
 
     # lm_APA OLS
-    assert results_rep[0].loc["vs"]["p-value"] == "=.002"
+    assert results_APA[0].loc["vs"]["p-value"] == ".002"
     assert (
-        results_rep[0].iloc[0]["model"]
-        == "R² = .80, R²adj = .79, R²pred = .75, F(2, 30) = 40.58, p < .0001"
+        results_APA[0].iloc[0]["model"]
+        == "R² = .80, R²adj = .79, R²pred = .75, F(2, 30) = 40.58, p < .001"
     )
     # lm_APA RLM
-    assert results_rep[1].loc["vs"]["p-value"] == "=.017"
+    assert results_APA[1].loc["vs"]["p-value"] == ".017"
     assert (
-        results_rep[1].iloc[0]["model"]
-        == "R² = .89, R²adj = .89, R²pred = .75, F(2, 30) = 126.93, p < .0001"
+        results_APA[1].iloc[0]["model"]
+        == "R² = .89, R²adj = .89, R²pred = .75, F(2, 30) = 126.93, p < .001"
     )
     # lm_APA GLM
-    assert results_rep[2].loc["vs"]["p-value"] == "=.001"
+    assert results_APA[2].loc["vs"]["p-value"] == ".001"
     assert (
-        results_rep[2].iloc[0]["model"]
-        == "R² = .97, R²adj = .97, R²pred = .75, F(2, 30) = 563.42, p < .0001"
+        results_APA[2].iloc[0]["model"]
+        == "R² = .97, R²adj = .97, R²pred = .75, F(2, 30) = 563.42, p < .001"
     )
 
 
 if __name__ == "__main__":
-    test_lm()
-    print("Tests for metatools.lm are PASSED!")
+    test_report()
+    print("Tests for metatools.report are PASSED!")

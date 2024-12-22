@@ -19,8 +19,8 @@ import semopy as sem
 #from scipy.stats import wilcoxon, mannwhitneyu
 #from scipy.stats import pearsonr, spearmanr
 
-import warnings
-warnings.filterwarnings("ignore")
+#import warnings
+#warnings.filterwarnings("ignore")
 
 ######################################################################################
 # https://cran.r-project.org/web/packages/effectsize/vignettes/interpret.html
