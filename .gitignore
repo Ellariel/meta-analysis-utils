@@ -4,6 +4,9 @@
 uv.lock
 
 __pycache__/
+.venv
+.vscode
+.ruff_cache
 *.py[cod]
 *$py.class
 
