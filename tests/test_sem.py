@@ -1,26 +1,20 @@
-import numpy as np
-import statsmodels.api as sm
+import semopy
 
 from metatools.sem import sem, sem_report
 
 
 def s(x):
-    return f"{x:.2f}"
+    return f"{x:.3f}"
 
 
 def test_sem():
-    test_data = sm.datasets.get_rdataset("mtcars", "datasets", cache=True).data
-    assert len(test_data) == 32
-    test_data = test_data[["mpg", "wt", "vs"]]
-
-    formula = """
-    w =~ wt
-    v =~ vs
-    mpg ~ w + v
-    """
+    # https://semopy.com/tutorial.html
+    data = semopy.examples.political_democracy.get_data()
+    formula = semopy.examples.political_democracy.get_model()
+    assert len(data) == 75
 
     stats, metrics = sem(
-        test_data,
+        data,
         formula,
         method="MLW",  # MLW ULS GLS FIML DWLS WLS
         solver="SLSQP",
@@ -29,14 +23,11 @@ def test_sem():
         standardized=True,
         seed=13,
     )
-    
-    print(metrics)
+
+    stats = sem_report(stats, metrics)
+
     print(stats)
 
-    stats, metrics = sem_report(stats, metrics)
-    
-    print(metrics)
-    print(stats)
 
 if __name__ == "__main__":
     test_sem()
