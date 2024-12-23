@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Some tools for statistics and proper reporting."
 authors = [{ name = "Danila Valko", email = "danila.valko@proton.me" }]
 requires-python = ">=3.9"
-keywords = ["metatools", "reporting", "regression", "statsmodels", "APA"]
+keywords = ["metatools", "reporting", "regression", "statsmodels", 
+            "SEM", "EFA", "CFA", "APA"]
 readme = "README.md"
 dependencies = [
     "numpy>=2.0.2",
@@ -15,10 +16,8 @@ dependencies = [
     "matplotlib>=3.9.2",
     "statsmodels>=0.14.4",
     "factor-analyzer>=0.5.1",
-    "graphviz",
     "semopy>=2.3.11",
     "networkx>=3.2.1",
-    "pydot>=3.0.3",
 ]
 
 [dependency-groups]
