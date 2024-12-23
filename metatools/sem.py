@@ -1,12 +1,6 @@
-import graphviz.dot
 import numpy as np
 import pandas as pd
-import tempfile
-import shutil
 import semopy
-import os
-import networkx as nx
-import graphviz
 
 
 from .format import format_p
@@ -66,8 +60,9 @@ def sem_report(stats, metrics, decimal=3, format_pval=True):
     stats.loc[stats.index[0], "model"] = r + ", " + m
     return stats
 
-
+'''
 def _semplot(model, save_to_file, plot_covs, std_ests):
+import networkx as nx
     tmp_file = os.path.join(tempfile.gettempdir(), "sem_tmp_fig.png")
     fname, ext = os.path.splitext(tmp_file)
     fig = semopy.semplot(
@@ -104,3 +99,4 @@ def _semplot(model, save_to_file, plot_covs, std_ests):
         fig.render(tmp_file, view=False, format=ext[1:], quiet=True)
         shutil.copy(tmp_file + ext, save_to_file)
     return fig
+'''
