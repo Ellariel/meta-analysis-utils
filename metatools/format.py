@@ -1,4 +1,5 @@
 import numpy as np
+from numbers import Number
 
 
 ###############
@@ -7,6 +8,8 @@ import numpy as np
 
 
 def get_stars(p, p001="***", p01="**", p05="*", p10="⁺", p_=""):
+    if not isinstance(p, Number):
+        return p
     if p < 0.001:
         return p001
     if p < 0.010:
@@ -19,6 +22,8 @@ def get_stars(p, p001="***", p01="**", p05="*", p10="⁺", p_=""):
 
 
 def format_p(p, use_letter="p", keep_spaces=True, no_equals=False):
+    if not isinstance(p, Number):
+        return p
     if not np.isfinite(p) or p < 0.0:
         p = "= inf"
     elif p < 0.0001:
@@ -39,6 +44,8 @@ def format_p(p, use_letter="p", keep_spaces=True, no_equals=False):
 
 
 def format_r(r, use_letter="r", keep_spaces=True, no_equals=False):
+    if not isinstance(r, Number):
+        return r
     if not np.isfinite(r):
         r = "= inf"
     elif np.abs(r) < 0.01:

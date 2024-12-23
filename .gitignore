@@ -2,6 +2,8 @@
 # manually
 *.json
 uv.lock
+*.png
+*.pdf
 
 __pycache__/
 .venv
