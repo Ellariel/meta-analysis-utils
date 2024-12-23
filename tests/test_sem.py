@@ -1,7 +1,7 @@
 import numpy as np
 import statsmodels.api as sm
 
-from metatools.sem import sem
+from metatools.sem import sem, sem_report
 
 
 def s(x):
@@ -19,26 +19,24 @@ def test_sem():
     mpg ~ w + v
     """
 
-    stats, metrics, fig = sem(
+    stats, metrics = sem(
         test_data,
         formula,
         method="MLW",  # MLW ULS GLS FIML DWLS WLS
         solver="SLSQP",
         bootstrap=10,
-        plot_covs=True,
-        se_robust=False,
+        se_robust=True,
         standardized=True,
-        format_pval=True,
-        save_to_file="fig.pdf",
-        return_fig=True,
-        decimal=3,
         seed=13,
     )
     
     print(metrics)
     print(stats)
-    print(fig)
 
+    stats, metrics = sem_report(stats, metrics)
+    
+    print(metrics)
+    print(stats)
 
 if __name__ == "__main__":
     test_sem()
