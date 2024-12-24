@@ -49,13 +49,13 @@ cil, m, cir = bootstrap([1, 2, 3, 4, 5, 6, 7, 8, 9],
 from metatools.calc import bootstrap
 from scipy.stats import spearmanr
 # bootstraping value for Spearman's correlation:
-def f(*args):
+def func(*args):
     return spearmanr(*args).statistic
 
 _, m, _ = bootstrap(
     [1, 2, 3, 4, 5, 6, 7, 8, 9],
     [4, 5, 8, 4, 5, 6, 7, 8, 9],
-    func=f,
+    func=func,
     n_rep=1000) # m = 0.75
 ```
 
