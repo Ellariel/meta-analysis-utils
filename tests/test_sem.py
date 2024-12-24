@@ -20,7 +20,7 @@ def test_sem():
         return_model=True,
         seed=13,
     )
-
+    assert model is not None
     assert f"{stats['estimate'].iloc[0]:.3f}" == "1.252"
 
     results = sem_report(stats, metrics)
@@ -32,15 +32,14 @@ def test_sem():
 
     fig = sem_plot(
         stats,
-        save_to_file="fig.pdf",
+        save_to_file="fig.png",
         plot_covs=True,
         std_ests=True,
-        format_fig="pdf",
+        format_fig="png",
         method="semopy",
         return_fig=True,
         show_fig=False,
         dpi=600,
-        model=model,
     )
 
     assert fig is not None
