@@ -5,26 +5,25 @@ description = "Some tools for statistics and proper reporting."
 authors = [{ name = "Danila Valko", email = "danila.valko@proton.me" }]
 requires-python = ">=3.9"
 keywords = ["metatools", "reporting", "regression", "statsmodels", 
-            "SEM", "EFA", "CFA", "APA"]
+            "SEM", "EFA", "CFA", "RLM", "APA"]
 readme = "README.md"
 dependencies = [
     "numpy>=2.0.2",
     "pandas>=2.2.3",
     "scipy>=1.13.1",
-    "scikit-learn>=1.5.2",
-    "seaborn>=0.13.2",
-    "matplotlib>=3.9.2",
+    "semopy>=2.3.11",
     "statsmodels>=0.14.4",
     "factor-analyzer>=0.5.1",
-    "semopy>=2.3.11",
-    "networkx>=3.2.1",
-    "graphviz>=0.20.3",
 ]
 
 [dependency-groups]
 dev = [
+    "scikit-learn>=1.5.2",
+    "seaborn>=0.13.2",
+    "matplotlib>=3.9.2",
     "lxml>=5.3.0",
-    
+    "networkx>=3.2.1",
+    "graphviz>=0.20.3",
     "pytest>=8.3.4",
     "ruff>=0.8.4",
 ]
