@@ -9,10 +9,10 @@ pip install git+https://github.com/ellariel/metatools.git
 ```
 
 ## Examples
-* ***metatools.calc*** - *Basic Module for Statistical Conversions and Bootstrapping*
-* metatools.format
+* ***metatools.calc*** - *Basic module for statistical conversions and bootstrapping*
 * metatools.lm
 * metatools.sem
+* ***metatools.format*** - *Simple APA-compliant formatting functions for numerical results*
 
 ### *metatools.calc*
 
@@ -60,4 +60,24 @@ _, m, _ = bootstrap(
 ```
 
 
+### *metatools.format*
+Simple APA-compliant functions for formatting numeric results, such as formatting R and r values, p-values, etc.
+
+#### Formatting examples
+```python
+from metatools.format import get_stars, format_p, format_r
+# formatting numeric results
+r = format_r(0.999, keep_spaces=True, use_letter="r", no_equals=False) # r = 'r = 1.'
+r = format_r(0.011, keep_spaces=True, use_letter="R", no_equals=False) # r = 'R = .01'
+p = format_p(0.0004, use_letter="p", keep_spaces=True, no_equals=False) # p = 'p < .001'
+s = get_stars(0.04, p001="***", p01="**", p05="*", p10="⁺", p_="") # s = '*'
+```
+
+
+
+## Main sources and references
+* [factor-analyzer](https://pypi.org/project/factor-analyzer/) (GPL-2.0 License)
+* [statsmodels](https://www.statsmodels.org/stable/) (BSD License)
+* [semopy](https://pypi.org/project/semopy/) (MIT License)
+* [scipy](https://pypi.org/project/scipy/) (BSD License)
 
