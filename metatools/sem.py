@@ -67,7 +67,7 @@ def sem_report(stats, metrics, format_pval=True, add_stars=False, decimal=3):
     r = metrics.iloc[:6].T.to_dict()
     m = metrics.iloc[6:11].T.to_dict()
     k = metrics.iloc[11:].T.to_dict()
-    r = f"χ2({int(r['DoF']['value'])}, N = {int(r['N']['value'])}) = {round(r['chi2']['value'], decimal)}, {format_p(r['chi2 p-value']['value'])}"
+    r = f"χ²({int(r['DoF']['value'])}, N = {int(r['N']['value'])}) = {round(r['chi2']['value'], decimal)}, {format_p(r['chi2 p-value']['value'])}"
     m = ", ".join(
         [f"{i} = " + f"{round(v['value'], decimal)}"[1:] for i, v in m.items()]
     )
