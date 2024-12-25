@@ -25,7 +25,7 @@ def test_sem():
     results = sem_report(stats, metrics, format_pval=True, add_stars=True)
     assert (
         results.iloc[0]["model"]
-        == "χ2(35, N = 75) = 38.125, p = .329, CFI = .995, GFI = .948, AGFI = .918, NFI = .948, TLI = .993, RMSEA = 0.035, AIC = 60.872, BIC = 132.714, LogLik = 0.564"
+        == "χ²(35, N = 75) = 38.125, p = .329, CFI = .995, GFI = .948, AGFI = .918, NFI = .948, TLI = .993, RMSEA = 0.035, AIC = 60.872, BIC = 132.714, LogLik = 0.564"
     )
     print(results)
 
