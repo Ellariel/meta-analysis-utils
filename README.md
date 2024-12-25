@@ -9,10 +9,10 @@ pip install git+https://github.com/ellariel/metatools.git
 ```
 
 ## Examples
-* ***metatools.calc*** - *Basic module for statistical conversions and bootstrapping*
+* ***metatools.calc*** - *basic module for statistical conversions and bootstrapping*
 * metatools.lm
 * metatools.sem
-* ***metatools.format*** - *Simple APA-compliant formatting functions for numerical results*
+* ***metatools.format*** - *simple APA-compliant formatting functions for numerical results*
 
 ### *metatools.calc*
 
