@@ -8,10 +8,10 @@ This toolbox is a curated collection of utilities I frequently use for statistic
 pip install git+https://github.com/ellariel/metatools.git
 ```
 
-## Examples
-* ***metatools.calc*** - *basic module for statistical conversions and bootstrapping*
-* metatools.lm
-* metatools.sem
+## Content and examples
+* ***metatools.calc*** - *a basic module for statistical conversions and bootstrapping*
+* ***metatools.lm*** - *a module offering wrapper functions for statsmodels, streamlining the fitting of OLS, RLM, and GLM models, as well as generating detailed tables*
+* ***metatools.sem*** - *a module for performing structural equation modeling, complete with result reporting and path diagram visualization*
 * ***metatools.format*** - *simple APA-compliant formatting functions for numerical results*
 
 ### *metatools.calc*
@@ -74,8 +74,7 @@ s = get_stars(0.04, p001="***", p01="**", p05="*", p10="⁺", p_="") # s = '*'
 ```
 
 
-
-## Main sources and references
+## Sources and references
 * [factor-analyzer](https://pypi.org/project/factor-analyzer/) (GPL-2.0 License)
 * [statsmodels](https://www.statsmodels.org/stable/) (BSD License)
 * [semopy](https://pypi.org/project/semopy/) (MIT License)

@@ -10,7 +10,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from .format import format_r, format_p, get_stars
 
 
-def vif(results, sort=False, round=2):
+def vif(results, sort=False, decimal=2):
     """
     VIF, the variance inflation factor, is a measure of multicollinearity.
     VIF > 5 for a variable indicates that it is highly collinear with the
@@ -23,7 +23,9 @@ def vif(results, sort=False, round=2):
     ]
     vif_df.index = results.model.exog_names
     vif_df = vif_df if not sort else vif_df.sort_values("vif")
-    return vif_df.round(round)
+    if decimal:
+        vif_df = vif_df.round(decimal)
+    return vif_df
 
 
 def fit_model(model, Y, X, **kwargs):  # model.fit() generator function
@@ -192,25 +194,25 @@ def lm(data, y, x, model="ols", **kwargs):
         if verbose:
             print(r.summary())
 
-    info = []
+    metrics = []
     if add_r_sq or add_pred_r_sq:
-        info = [r_sq(r) for r in results]
+        metrics = [r_sq(r) for r in results]
         if add_pred_r_sq:
-            info = [
+            metrics = [
                 {**r, **{"pred_r_sq": rr}}
-                for r, rr in zip(info, pred_r_sq(model, Y, X, **kwargs))
+                for r, rr in zip(metrics, pred_r_sq(model, Y, X, **kwargs))
             ]
     if calc_vif:
-        info = [{**i, **{"vif": vif(r)}} for i, r in zip(info, results)]
+        metrics = [{**i, **{"vif": vif(r)}} for i, r in zip(metrics, results)]
 
-    return results, info
+    return results, metrics
 
 
-def lm_report(results, info={}, format_pval=True, add_stars=True, decimal=None):
+def lm_report(results, metrics={}, format_pval=True, add_stars=True, decimal=None):
     # R² = .34, R²adj = .34, R²pred = .34, F(1, 416) = 6.71, p = .009
 
-    res = []
-    for r, i in zip_longest(results, info, fillvalue={}):
+    output = []
+    for r, i in zip_longest(results, metrics, fillvalue={}):
         s = []
         if "r_sq" in i:
             s.append(f"R² {format_r(i['r_sq'], use_letter=False)}")
@@ -253,5 +255,6 @@ def lm_report(results, info={}, format_pval=True, add_stars=True, decimal=None):
             params = params.join(i["vif"])
         if len(i):
             params.loc[params.index[0], "model"] = s
-        res.append(params)
-    return res
+        output.append(params)
+
+    return output

@@ -5,7 +5,6 @@ import semopy
 
 from .format import format_p, get_stars
 
-# it uses graphviz. for windows, use https://graphviz.gitlab.io/download/
 # https://arxiv.org/pdf/2106.01140.pdf
 # https://semopy.com/cite.html
 # https://gitlab.com/georgy.m/semopy
@@ -45,7 +44,7 @@ def sem(
     return stats, metrics
 
 
-def sem_report(stats, metrics, decimal=3, format_pval=True, add_stars=False):
+def sem_report(stats, metrics, format_pval=True, add_stars=False, decimal=3):
     # https://people.ucsc.edu/~zurbrigg/psy214b/09SEM8a.pdf
     # χ2(48, N = 500) = 303.80, p < .001, TLI = .86, CFI = .90
 
@@ -73,7 +72,8 @@ def sem_report(stats, metrics, decimal=3, format_pval=True, add_stars=False):
         [f"{i} = " + f"{round(v['value'], decimal)}"[1:] for i, v in m.items()]
     )
     k = ", ".join([f"{i} = " + f"{round(v['value'], decimal)}" for i, v in k.items()])
-    stats = stats.round(decimal)
+    if decimal:
+        stats = stats.round(decimal)
     stats.loc[stats.index[0], "model"] = r + ", " + m + ", " + k
     return stats
 
@@ -166,6 +166,7 @@ def semopy_plot(
     import shutil
     import tempfile
     import graphviz
+    # it uses graphviz. for windows, use https://graphviz.gitlab.io/download/
 
     np.random.seed(seed)
     stats = stats.copy()
@@ -188,7 +189,6 @@ def semopy_plot(
     elements = stats[stats["op"] == "~"]
     latent = set(elements["rval"].to_list())
     observed = set(elements["lval"].to_list()) - latent
-    all = list(latent) + list(observed)
     g = graphviz.Digraph("G", format=format_fig, engine=engine)
     g.attr(overlap="scale", splines="true")
     g.attr("edge", fontsize="12")
@@ -205,7 +205,7 @@ def semopy_plot(
             row["p-value"],
             row["estimate"] if not std_ests else row["est_std"],
         )
-        if (rval not in all) or (rval == "1"):
+        if rval == "1":
             continue
         label = ""
         if plot_ests:
