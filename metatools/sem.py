@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
 import semopy
-import os
 
 
-from .format import format_p
+from .format import format_p, get_stars
 
 # it uses graphviz. for windows, use https://graphviz.gitlab.io/download/
 # https://arxiv.org/pdf/2106.01140.pdf
@@ -46,17 +45,22 @@ def sem(
     return stats, metrics
 
 
-def sem_report(stats, metrics, decimal=3, format_pval=True):
+def sem_report(stats, metrics, decimal=3, format_pval=True, show_stars=False):
     # https://people.ucsc.edu/~zurbrigg/psy214b/09SEM8a.pdf
     # χ2(48, N = 500) = 303.80, p < .001, TLI = .86, CFI = .90
 
     stats = stats.copy()
+    if show_stars:
+        show_stars = get_stars if not callable(show_stars) else show_stars
+        stats["sig"] = stats["p-value"].fillna("").apply(show_stars)
     if format_pval:
         stats["p-value"] = (
             stats["p-value"]
             .fillna("")
             .apply(
-                lambda x: format_p(
+                format_pval
+                if callable(format_pval)
+                else lambda x: format_p(
                     x, use_letter=False, keep_spaces=False, no_equals=True
                 )
             )
@@ -79,6 +83,7 @@ def sem_plot(
     save_to_file,
     plot_covs=True,
     std_ests=True,
+    show_stars=False,
     format_pval=True,
     format_fig="png",
     method="semopy",
@@ -87,36 +92,150 @@ def sem_plot(
     decimal=3,
     dpi=600,
     seed=13,
+    **kwargs,
 ):
     #
 
+    if method == "semopy":
+        fig = semopy_plot(
+            stats,
+            save_to_file=save_to_file,
+            plot_covs=plot_covs,
+            std_ests=std_ests,
+            plot_ests=True,
+            engine="dot",
+            latshape="circle",
+            show_stars=show_stars,
+            format_pval=format_pval,
+            format_fig=format_fig,
+            decimal=decimal,
+            seed=seed,
+            dpi=dpi,
+            **kwargs,
+        )
+
+    if return_fig:
+        return fig
+
+
+def semopy_plot(
+    stats,
+    save_to_file,
+    plot_covs=True,
+    std_ests=True,
+    plot_ests=True,
+    engine="dot",
+    latshape="circle",
+    show_stars=False,
+    format_pval=True,
+    format_fig="png",
+    decimal=3,
+    seed=13,
+    **kwargs,
+):
+    """
+    Draw a SEM diagram adapted from semopy.semplot
+
+    Parameters
+    ----------
+    save_to_file : str
+        Name of file where to plot is saved.
+    plot_covs : bool, optional
+        If True, covariances are also drawn. The default is False.
+    plot_exos: bool, optional
+        If False, exogenous variables are not plotted. It might be useful,
+        for example, in GWAS setting, where a number of exogenous variables,
+        i.e. genetic markers, is oblivious. Has effect only with ModelMeans or
+        ModelEffects. The default is True.
+    engine : str, optional
+        Graphviz engine name to use. The default is 'dot'.
+    latshape : str, optional
+        Graphviz-compaitable shape for latent variables. The default is
+        'circle'.
+    plot_ests : bool, optional
+        If True, then estimates are also plotted on the graph. The default is
+        True.
+    std_ests : bool, optional
+        If True and plot_ests is True, then standardized values are plotted
+        instead. The default is False.
+    Returns
+    -------
+    Graphviz graph.
+    """
+    import os
+    import shutil
+    import tempfile
+    import graphviz
+
     np.random.seed(seed)
+    stats = stats.copy()
+    if show_stars:
+        show_stars = get_stars if not callable(show_stars) else show_stars
+        stats["p-value"] = stats["p-value"].fillna("").apply(show_stars)
+    elif format_pval:
+        stats["p-value"] = (
+            stats["p-value"]
+            .fillna("")
+            .apply(
+                format_pval
+                if callable(format_pval)
+                else lambda x: format_p(
+                    x, use_letter=False, keep_spaces=False, no_equals=True
+                )
+            )
+        )
+    stats = stats.round(decimal)
     elements = stats[stats["op"] == "~"]
     latent = set(elements["rval"].to_list())
     observed = set(elements["lval"].to_list()) - latent
-
-    if method == "semopy":
-        import tempfile
-        import shutil
-
-        tfile = os.path.join(tempfile.gettempdir(), f"sem_tmp_fig.{format_fig}")
-        inspection = stats.copy()
-        inspection["Estimate"] = inspection["estimate"]
-        inspection["Est. Std"] = inspection["est_std"]
-        inspection["p-value"] = inspection["p-value"].fillna("-")
-        model = semopy.Model("")
-        model.last_result = None
-        model.vars["latent"] = latent
-        model.vars["observed"] = observed
-        model.vars["all"] = list(latent) + list(observed)
-        fig = semopy.semplot(
-            model,
-            tfile,
-            plot_covs=plot_covs,
-            std_ests=std_ests,
-            inspection=inspection,
-            show=False,
+    all = list(latent) + list(observed)
+    g = graphviz.Digraph("G", format=format_fig, engine=engine)
+    g.attr(overlap="scale", splines="true")
+    g.attr("edge", fontsize="12")
+    g.attr("node", shape=latshape, fillcolor="#cae6df", style="filled")
+    for lat in latent:
+        g.node(lat, label=lat)
+    g.attr("node", shape="box", style="")
+    for obs in observed:
+        g.node(obs, label=obs)
+    for _, row in elements.iterrows():
+        lval, rval, pval, est = (
+            row["lval"],
+            row["rval"],
+            row["p-value"],
+            row["estimate"] if not std_ests else row["est_std"],
         )
-        shutil.copy(tfile, save_to_file)
-        if return_fig:
-            return fig
+        if (rval not in all) or (rval == "1"):
+            continue
+        label = ""
+        if plot_ests:
+            label = str(est)
+            if pval != "" and pd.notna(pval):
+                if show_stars:
+                    label += pval
+                else:
+                    label += f"\n{pval}"
+        g.edge(rval, lval, label=label)
+    if plot_covs:
+        elements = stats[(stats["op"] == "~~") & (stats["lval"] != stats["rval"])]
+        for _, row in elements.iterrows():
+            lval, rval, pval, est = (
+                row["lval"],
+                row["rval"],
+                row["p-value"],
+                row["estimate"] if not std_ests else row["est_std"],
+            )
+            label = ""
+            if plot_ests:
+                label = str(est)
+                if pval != "" and pd.notna(pval):
+                    if show_stars:
+                        label += pval
+                    else:
+                        label += f"\n{pval}"
+            g.edge(rval, lval, label=label, dir="both", style="dashed")
+    tfile = os.path.join(tempfile.gettempdir(), "semplot_tmp_fig")
+    g.render(tfile, view=False)
+    if save_to_file:
+        shutil.copy(f"{tfile}.{format_fig}", save_to_file)
+    return g
