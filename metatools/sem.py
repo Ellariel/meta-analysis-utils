@@ -45,14 +45,14 @@ def sem(
     return stats, metrics
 
 
-def sem_report(stats, metrics, decimal=3, format_pval=True, show_stars=False):
+def sem_report(stats, metrics, decimal=3, format_pval=True, add_stars=False):
     # https://people.ucsc.edu/~zurbrigg/psy214b/09SEM8a.pdf
     # χ2(48, N = 500) = 303.80, p < .001, TLI = .86, CFI = .90
 
     stats = stats.copy()
-    if show_stars:
-        show_stars = get_stars if not callable(show_stars) else show_stars
-        stats["sig"] = stats["p-value"].fillna("").apply(show_stars)
+    if add_stars:
+        add_stars = get_stars if not callable(add_stars) else add_stars
+        stats["sig"] = stats["p-value"].fillna("").apply(add_stars)
     if format_pval:
         stats["p-value"] = (
             stats["p-value"]

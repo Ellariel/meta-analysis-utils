@@ -206,7 +206,7 @@ def lm(data, y, x, model="ols", **kwargs):
     return results, info
 
 
-def lm_report(results, info={}, decimal=None):
+def lm_report(results, info={}, format_pval=True, add_stars=True, decimal=None):
     # R² = .34, R²adj = .34, R²pred = .34, F(1, 416) = 6.71, p = .009
 
     res = []
@@ -235,11 +235,20 @@ def lm_report(results, info={}, decimal=None):
         if decimal:
             for c in ["coef", "se", "cil", "cir"]:
                 params[c] = params[c].round(decimal)
-        params["sig"] = [get_stars(c) for c in params["p-value"]]
-        params["p-value"] = [
-            format_p(c, use_letter=False, keep_spaces=False, no_equals=True)
-            for c in params["p-value"]
-        ]
+
+        if add_stars:
+            add_stars = add_stars if callable(add_stars) else get_stars
+            params["sig"] = [get_stars(c) for c in params["p-value"]]
+
+        if format_pval:
+            format_pval = (
+                format_pval
+                if callable(format_pval)
+                else lambda x: format_p(
+                    x, use_letter=False, keep_spaces=False, no_equals=True
+                )
+            )
+            params["p-value"] = [format_pval(c) for c in params["p-value"]]
         if "vif" in i:
             params = params.join(i["vif"])
         if len(i):

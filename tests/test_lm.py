@@ -40,7 +40,7 @@ def test_lm():
     assert s(results[2].pvalues.iloc[1]) == "0.00"
     assert s(info[2]["pred_r_sq"]) == "0.75"
 
-    results_rep = lm_report(results, info)
+    results_rep = lm_report(results, info, format_pval=True, add_stars=True)
     print(results_rep, info)
 
     # lm_report OLS
