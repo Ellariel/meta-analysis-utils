@@ -13,7 +13,7 @@ def test_lm():
 
     y = "mpg"
     x = ["wt", "vs"]
-    results, info = lm(
+    results, metrics = lm(
         test_data,
         y,
         x,
@@ -32,16 +32,16 @@ def test_lm():
     # OLS
     assert s(results[0].fvalue) == "40.58"
     assert s(results[0].params.iloc[1]) == "-4.44"
-    assert s(info[0]["pred_r_sq"]) == "0.75"
+    assert s(metrics[0]["pred_r_sq"]) == "0.75"
     # RLM
     assert s(results[1].params.iloc[1]) == "-4.44"
-    assert s(info[1]["pred_r_sq"]) == "0.75"
+    assert s(metrics[1]["pred_r_sq"]) == "0.75"
     # GLM
     assert s(results[2].pvalues.iloc[1]) == "0.00"
-    assert s(info[2]["pred_r_sq"]) == "0.75"
+    assert s(metrics[2]["pred_r_sq"]) == "0.75"
 
-    results_rep = lm_report(results, info, format_pval=True, add_stars=True)
-    print(results_rep, info)
+    results_rep = lm_report(results, metrics, format_pval=True, add_stars=True)
+    print(results_rep, metrics)
 
     # lm_report OLS
     assert results_rep[0].loc["vs"]["p-value"] == ".002"

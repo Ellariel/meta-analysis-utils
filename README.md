@@ -60,6 +60,36 @@ _, m, _ = bootstrap(
 ```
 
 
+### *metatools.lm*
+Fitting of OLS, RLM and GLM models using *statsmodels*. Passing arguments to the class initialization `model()`  and the fitting method `model.fit()` is possible by adding appropriate model (`ols_`, `rlm_`, `glm_`) and method (`fit_` or `model_`) prefixes, e.g. `ols_fit_cov_type`, `glm_model_family`, `rlm_model_M`.
+
+Parameters:
+* `vif` - adds a VIF column to the metrics dictionary and reported table
+* `pred_r_sq` - calculates predicted R²
+
+```python
+from metatools.lm import lm, lm_report
+results, metrics = lm(
+        test_data,
+        y,
+        x,
+        model=["ols", "rlm", "glm"],
+        verbose=True,
+        constant=True,
+        standardized=False,
+        vif=True,
+        r_sq=True,
+        pred_r_sq=True,
+        ols_fit_cov_type="HC1",
+        rlm_model_M=sm.robust.norms.RamsayE(),
+        glm_fit_cov_type="HC1",
+        glm_model_family=sm.families.Gaussian(),
+    )
+
+results_rep = lm_report(results, metrics, format_pval=True, add_stars=True)
+print(results_rep, metrics)
+```
+
 ### *metatools.format*
 Simple APA-compliant functions for formatting numeric results, such as formatting R and r values, p-values, etc.
 
