@@ -63,35 +63,51 @@ _, m, _ = bootstrap(
 ### *metatools.lm*
 Fitting of OLS, RLM and GLM models using *statsmodels*. Passing arguments to the class initialization `model()`  and the fitting method `model.fit()` is possible by adding appropriate model (`ols_`, `rlm_`, `glm_`) and method (`fit_` or `model_`) prefixes, e.g. `ols_fit_cov_type`, `glm_model_family`, `rlm_model_M`.
 
-Parameters:
+Specific parameters:
 * `vif` - adds a VIF column to the metrics dictionary and reported table
-* `pred_r_sq` - calculates predicted R²
+* `pred_r_sq` - calculates [predicted R²](https://blog.minitab.com/en/adventures-in-statistics-2/multiple-regession-analysis-use-adjusted-r-squared-and-predicted-r-squared-to-include-the-correct-number-of-variables#:~:text=What%20Is%20the%20Predicted%20R,valid%20predictions%20for%20new%20observations.)
 
 ```python
 from metatools.lm import lm, lm_report
 results, metrics = lm(
-        test_data,
-        y,
-        x,
+        data,
+        y, x,
         model=["ols", "rlm", "glm"],
         verbose=True,
-        constant=True,
-        standardized=False,
         vif=True,
-        r_sq=True,
         pred_r_sq=True,
         ols_fit_cov_type="HC1",
         rlm_model_M=sm.robust.norms.RamsayE(),
-        glm_fit_cov_type="HC1",
         glm_model_family=sm.families.Gaussian(),
     )
-
-results_rep = lm_report(results, metrics, format_pval=True, add_stars=True)
+results_rep = lm_report(results, metrics)
 print(results_rep, metrics)
+```
+
+
+### *metatools.sem*
+Structural equation modeling implemented with *semopy*. The module provides modeling function `sem()`, formatting `sem_report()` and plotting `sem_plot()` functions.
+
+```python
+from metatools.sem import sem, sem_report, sem_plot
+stats, metrics, model = sem(
+        data,
+        formula,
+        method="MLW",  # MLW ULS GLS FIML DWLS WLS
+        return_model=True,
+    )
+results_rep = sem_report(stats, metrics)
+print(results_rep)
+fig = sem_plot(
+        stats,
+        save_to_file="fig.png",
+        return_fig=True,
+    )
 ```
 
 ### *metatools.format*
 Simple APA-compliant functions for formatting numeric results, such as formatting R and r values, p-values, etc.
+
 
 #### Formatting examples
 ```python
