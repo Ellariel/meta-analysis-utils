@@ -1,6 +1,6 @@
 import semopy
 
-from metatools.sem import sem, sem_report, semopy_plot, sem_plot
+from apatools.sem import sem, sem_report, semopy_plot, sem_plot
 
 
 def test_sem():

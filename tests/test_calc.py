@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import spearmanr
 
-from metatools.calc import *
+from apatools.calc import *
 
 
 def s(x):

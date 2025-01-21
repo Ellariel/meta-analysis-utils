@@ -1,6 +1,6 @@
 import statsmodels.api as sm
 
-from metatools.lm import lm, lm_report
+from apatools.lm import lm, lm_report
 
 
 def s(x):

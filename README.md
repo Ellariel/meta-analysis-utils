@@ -5,22 +5,22 @@ This toolbox is a curated collection of utilities I frequently use for statistic
 
 ## Install
 ```shell
-pip install git+https://github.com/ellariel/metatools.git
+pip install git+https://github.com/ellariel/apatools.git
 ```
 
 ## Content and examples
-* ***metatools.calc*** - *a basic module for statistical conversions and bootstrapping*
-* ***metatools.lm*** - *a module offering wrapper functions for statsmodels, streamlining the fitting of OLS, RLM, and GLM models, as well as generating detailed tables*
-* ***metatools.sem*** - *a module for performing structural equation modeling, complete with result reporting and path diagram visualization*
-* ***metatools.format*** - *simple APA-compliant formatting functions for numerical results*
+* ***apatools.calc*** - *a basic module for statistical conversions and bootstrapping*
+* ***apatools.lm*** - *a module offering wrapper functions for statsmodels, streamlining the fitting of OLS, RLM, and GLM models, as well as generating detailed tables*
+* ***apatools.sem*** - *a module for performing structural equation modeling, complete with result reporting and path diagram visualization*
+* ***apatools.format*** - *simple APA-compliant formatting functions for numerical results*
 
-### *metatools.calc*
+### *apatools.calc*
 
 This module provides essential conversion functions alongside tools for bootstrapping means, confidence intervals, and related statistics. It includes a comprehensive set of approximate conversion functions for bidirectional transformations between t-, z-, and F-statistics, as well as conversions involving Cohen's r, Cohen's d, and p-values.
 
 #### Conversion examples
 ```python
-from metatools.calc import cohen_r_from_z, cohen_d_from_z
+from apatools.calc import cohen_r_from_z, cohen_d_from_z
 # calculation Cohen's r and d from z-score:
 # there is also a shorten aliases r_from_z and d_from_z
 z = -1.472
@@ -29,7 +29,7 @@ d = cohen_d_from_z(z) # d = -4.1
 ```
 
 ```python
-from metatools.calc import p_from_r
+from apatools.calc import p_from_r
 # calculation p-value for Cohen's r  or correlation coefficient:
 r = -0.79
 n = 100
@@ -38,7 +38,7 @@ p = p_from_r(r, n) # p = 0.0
 
 #### Bootstrap examples
 ```python
-from metatools.calc import bootstrap
+from apatools.calc import bootstrap
 # bootstraping confidence intervals for a mean value:
 cil, m, cir = bootstrap([1, 2, 3, 4, 5, 6, 7, 8, 9],
         func=np.mean,
@@ -46,7 +46,7 @@ cil, m, cir = bootstrap([1, 2, 3, 4, 5, 6, 7, 8, 9],
 ```
 
 ```python
-from metatools.calc import bootstrap
+from apatools.calc import bootstrap
 from scipy.stats import spearmanr
 # bootstraping value for Spearman's correlation:
 def func(*args):
@@ -60,7 +60,7 @@ _, m, _ = bootstrap(
 ```
 
 
-### *metatools.lm*
+### *apatools.lm*
 Fitting of OLS, RLM and GLM models using *statsmodels*. Passing arguments to the class initialization `model()`  and the fitting method `model.fit()` is possible by adding appropriate model (`ols_`, `rlm_`, `glm_`) and method (`fit_` or `model_`) prefixes, e.g. `ols_fit_cov_type`, `glm_model_family`, `rlm_model_M`.
 
 Specific parameters:
@@ -68,7 +68,7 @@ Specific parameters:
 * `pred_r_sq` - calculates [predicted R²](https://blog.minitab.com/en/adventures-in-statistics-2/multiple-regession-analysis-use-adjusted-r-squared-and-predicted-r-squared-to-include-the-correct-number-of-variables#:~:text=What%20Is%20the%20Predicted%20R,valid%20predictions%20for%20new%20observations.)
 
 ```python
-from metatools.lm import lm, lm_report
+from apatools.lm import lm, lm_report
 results, metrics = lm(
         data,
         y, x,
@@ -85,11 +85,11 @@ print(results_rep, metrics)
 ```
 
 
-### *metatools.sem*
+### *apatools.sem*
 Structural equation modeling implemented with *semopy*. The module provides modeling function `sem()`, formatting `sem_report()` and plotting `sem_plot()` functions.
 
 ```python
-from metatools.sem import sem, sem_report, sem_plot
+from apatools.sem import sem, sem_report, sem_plot
 stats, metrics, model = sem(
         data,
         formula,
@@ -105,13 +105,13 @@ fig = sem_plot(
     )
 ```
 
-### *metatools.format*
+### *apatools.format*
 Simple APA-compliant functions for formatting numeric results, such as formatting R and r values, p-values, etc.
 
 
 #### Formatting examples
 ```python
-from metatools.format import get_stars, format_p, format_r
+from apatools.format import get_stars, format_p, format_r
 # formatting numeric results
 r = format_r(0.999, keep_spaces=True, use_letter="r", no_equals=False) # r = 'r = 1.'
 r = format_r(0.011, keep_spaces=True, use_letter="R", no_equals=False) # r = 'R = .01'

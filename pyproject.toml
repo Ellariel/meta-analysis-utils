@@ -1,10 +1,10 @@
 [project]
-name = "metatools"
-version = "0.1.0"
+name = "apatools"
+version = "0.0.1"
 description = "A Toolbox for Meta-Analysis and APA-Compliant Reporting."
 authors = [{ name = "Danila Valko", email = "danila.valko@proton.me" }]
 requires-python = ">=3.9"
-keywords = ["metatools", "reporting", "regression", "statsmodels", 
+keywords = ["apatools", "reporting", "regression", "statsmodels", 
             "SEM", "EFA", "CFA", "RLM", "APA"]
 readme = "README.md"
 dependencies = [
@@ -31,7 +31,7 @@ dev = [
 [tool.mypy]
 ignore_missing_imports = true
 files = [
-  "metatools/*.py",
+  "apatools/*.py",
 ]
 
 [tool.uv]
